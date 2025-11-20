@@ -2,7 +2,7 @@
 // pastikan $page sudah ada dari index.php
 ?>
 
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="info">
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="#A8E6CF">
   <!-- Brand -->
   <div class="sidebar-brand">
     <a href="index.php?page=dashboard" class="brand-link">
