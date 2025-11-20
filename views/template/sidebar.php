@@ -1,15 +1,13 @@
 <?php
-// Pastikan $page sudah didefinisikan di index.php sebelum include sidebar
+// pastikan di index.php sebelum include sidebar sudah ada:
+// $page = $_GET['page'] ?? 'dashboard';
 ?>
+
 <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-  <!-- Sidebar Brand -->
+  <!-- Brand -->
   <div class="sidebar-brand">
     <a href="index.php?page=dashboard" class="brand-link">
-      <img
-        src="assets/img/AdminLTELogo.png"
-        alt="Logo"
-        class="brand-image opacity-75 shadow"
-      />
+      <img src="assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
       <span class="brand-text fw-light">SIP Hewan</span>
     </a>
   </div>
@@ -17,6 +15,7 @@
   <!-- Sidebar Wrapper -->
   <div class="sidebar-wrapper">
     <nav class="mt-2">
+      <!-- PENTING: data-lte-toggle="treeview" -->
       <ul
         class="nav sidebar-menu flex-column"
         data-lte-toggle="treeview"
@@ -24,7 +23,7 @@
         aria-label="Main navigation"
         data-accordion="false"
       >
-        <!-- MENU DASHBOARD -->
+        <!-- DASHBOARD -->
         <li class="nav-item">
           <a href="index.php?page=dashboard"
              class="nav-link <?php echo ($page === 'dashboard') ? 'active' : ''; ?>">
@@ -33,15 +32,19 @@
           </a>
         </li>
 
-        <!-- MENU DATA (DROPDOWN) -->
-        <li class="nav-item <?php echo in_array($page, ['hewan','pelanggan','layanan']) ? 'menu-open' : ''; ?>">
-          <a href="#" class="nav-link <?php echo in_array($page, ['hewan','pelanggan','layanan']) ? 'active' : ''; ?>">
+        <!-- DATA (TREEVIEW / DROPDOWN) -->
+        <li class="nav-item <?php echo in_array($page, ['hewan','pelanggan','layanan','transaksi']) ? 'menu-open' : ''; ?>">
+          <!-- PENTING: href="#" biar nggak pindah halaman -->
+          <a href="#"
+             class="nav-link <?php echo in_array($page, ['hewan','pelanggan','layanan','transaksi']) ? 'active' : ''; ?>">
             <i class="nav-icon bi bi-archive-fill"></i>
             <p>
               Data
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
           </a>
+
+          <!-- submenu -->
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="index.php?page=hewan"
@@ -64,8 +67,6 @@
                 <p>Jenis Layanan</p>
               </a>
             </li>
-            
-        <!-- Transaksi -->
             <li class="nav-item">
               <a href="index.php?page=transaksi"
                  class="nav-link <?php echo ($page === 'transaksi') ? 'active' : ''; ?>">
@@ -76,7 +77,7 @@
           </ul>
         </li>
 
-        <!-- MENU LAPORAN -->
+        <!-- LAPORAN -->
         <li class="nav-item">
           <a href="index.php?page=laporan"
              class="nav-link <?php echo ($page === 'laporan') ? 'active' : ''; ?>">
@@ -85,7 +86,7 @@
           </a>
         </li>
 
-        <!-- MENU LOGOUT -->
+        <!-- LOGOUT -->
         <li class="nav-item">
           <a href="index.php?page=logout" class="nav-link text-danger">
             <i class="nav-icon bi bi-box-arrow-right"></i>
