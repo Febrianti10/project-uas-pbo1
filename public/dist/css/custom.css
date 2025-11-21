@@ -5,7 +5,8 @@
 
 body {
     font-family: "Inter", sans-serif !important;
-    background: #f6f8fa; /* putih 60% */
+    background: #f6f8fa;
+    /* putih 60% */
     color: #333;
 }
 
@@ -60,6 +61,7 @@ h2,
 .text-primary {
     color: var(--primary-blue) !important;
 }
+
 .text-accent {
     color: var(--accent-orange) !important;
 }
@@ -71,10 +73,12 @@ h2,
     background: #D1F7C4 !important;
     color: #2F8F24 !important;
 }
+
 .badge-warning {
     background: #FFF4CC !important;
     color: #c88400 !important;
 }
+
 .badge-danger {
     background: #FFE2E2 !important;
     color: #c73636 !important;
@@ -93,63 +97,161 @@ h2,
 ============================== */
 
 /* Background sidebar */
-.app-sidebar {
-    background-color: #0265FE !important;
+/* ==============================
+   MODERN SIDEBAR (seperti contoh)
+============================== */
+
+.modern-sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    border-right: 1px solid #edf1f7;
+    padding-top: 1rem;
+    position: fixed;
+
 }
 
-/* Brand area (logo + teks) */
-.app-sidebar .sidebar-brand {
-    background-color: #0265FE;      /* warna utama */
+/* brand area */
+.modern-sidebar .sidebar-brand {
+    padding: 0 1.25rem 0.75rem;
+}
+
+.brand-logo-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: rgba(2, 101, 254, 0.1);
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    justify-content: center;
+    color: #0265FE;
+    font-size: 1.1rem;
 }
 
-/* Logo Sidebar */
-.app-sidebar .brand-logo,
-.app-sidebar .brand-image {
-    height: 48px;     /* perbesar logo */
-    width: auto;      /* jaga proporsi */
-    object-fit: contain;
-    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); /* hilangkan shadow */
+.brand-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
 }
 
-/* Teks brand */
-.app-sidebar .brand-text {
-    color: #ffffff !important;
-    font-weight: 600;
-    margin-left: 0.5rem;
+.brand-subtitle {
+    font-size: 0.75rem;
+    color: #9ca3af;
 }
 
-/* Link di sidebar */
-.app-sidebar .nav-link {
-    border-radius: 8px;
-    transition: 0.2s ease;
-    margin-bottom: 4px;
+/* wrapper isi agar full tinggi + user di bawah */
+.modern-sidebar .sidebar-wrapper {
+    padding: 0.5rem 1.25rem 1rem;
+    height: calc(100vh - 56px);
+    /* kira-kira tinggi minus navbar */
+}
+
+/* menu list */
+.modern-menu {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* label section kecil */
+.modern-section-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #9ca3af;
+    padding: 0 0.25rem;
+}
+
+/* link utama */
+.modern-link {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: #6b7280 !important;
     font-weight: 500;
-    color: #ffffff !important;
+    text-decoration: none;
+    transition: background-color .15s ease, color .15s ease, transform .1s ease;
 }
 
-/* Ikon default di sidebar */
-.app-sidebar .nav-icon {
-    color: #ffffff !important;
+/* ikon kecil */
+.modern-icon {
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
 }
 
-/* Hover menu */
-.app-sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important;
+/* hover */
+.modern-link:hover {
+    background-color: #f4f6ff;
+    color: #0265FE !important;
 }
 
-/* Link aktif */
-.app-sidebar .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.25) !important;
-    color: #ffffff !important;
+/* aktif (pill biru muda) */
+.modern-link.active {
+    background-color: rgba(2, 101, 254, 0.12);
+    color: #0265FE !important;
 }
 
-/* Submenu bulatan (icon di treeview) */
-.app-sidebar .nav-treeview .nav-icon {
-    color: #ffffff !important;
+/* divider tipis */
+.modern-divider {
+    border-color: #edf1f7;
+    margin: 0.5rem 0;
+}
+
+/* user card di bawah */
+.sidebar-user {
+    padding-top: 0.5rem;
+    border-top: 1px solid #edf1f7;
+}
+
+.sidebar-user-card {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 999px;
+    background-color: #f9fafb;
+}
+
+.sidebar-user-card .user-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+.sidebar-user-card .user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-welcome {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    line-height: 1.1;
+}
+
+.user-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user-arrow {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+/* CSS pemilik */
+#suggest_pemilik div.hover-bg:hover {
+    background: #f0f4ff;
 }
 
 /* ==============================
