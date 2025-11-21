@@ -101,153 +101,116 @@ h2,
    MODERN SIDEBAR (seperti contoh)
 ============================== */
 
-.modern-sidebar {
-    width: 250px;
-    background-color: #ffffff;
-    border-right: 1px solid #edf1f7;
-    padding-top: 1rem;
-    position: fixed;
-
+/* ====== Sidebar biru ====== */
+.bg-primary-blue {
+    background-color: #0265FE !important;
 }
 
-/* brand area */
-.modern-sidebar .sidebar-brand {
-    padding: 0 1.25rem 0.75rem;
+.modern-sidebar {
+    width: 260px;
+    min-height: 100vh;
+    padding: 10px 0;
+}
+
+/* Brand */
+.sidebar-brand {
+    padding: 0.75rem 1.25rem;
 }
 
 .brand-logo-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
-    background: rgba(2, 101, 254, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255,255,255,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0265FE;
-    font-size: 1.1rem;
 }
 
-.brand-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #111827;
-}
-
-.brand-subtitle {
-    font-size: 0.75rem;
-    color: #9ca3af;
-}
-
-/* wrapper isi agar full tinggi + user di bawah */
-.modern-sidebar .sidebar-wrapper {
-    padding: 0.5rem 1.25rem 1rem;
-    height: calc(100vh - 56px);
-    /* kira-kira tinggi minus navbar */
-}
-
-/* menu list */
-.modern-menu {
-    list-style: none;
-    padding-left: 0;
-}
-
-/* label section kecil */
-.modern-section-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: #9ca3af;
-    padding: 0 0.25rem;
-}
-
-/* link utama */
-.modern-link {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.45rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    color: #6b7280 !important;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color .15s ease, color .15s ease, transform .1s ease;
-}
-
-/* ikon kecil */
-.modern-icon {
-    width: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1rem;
-}
-
-/* hover */
-.modern-link:hover {
-    background-color: #f4f6ff;
-    color: #0265FE !important;
-}
-
-/* aktif (pill biru muda) */
-.modern-link.active {
-    background-color: rgba(2, 101, 254, 0.12);
-    color: #0265FE !important;
-}
-
-/* divider tipis */
-.modern-divider {
-    border-color: #edf1f7;
-    margin: 0.5rem 0;
-}
-
-/* user card di bawah */
-.sidebar-user {
-    padding-top: 0.5rem;
-    border-top: 1px solid #edf1f7;
-}
-
-.sidebar-user-card {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: 0.75rem;
-    padding: 0.55rem 0.6rem;
-    border-radius: 999px;
-    background-color: #f9fafb;
-}
-
-.sidebar-user-card .user-avatar img {
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
+.brand-logo-img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-.sidebar-user-card .user-info {
-    flex: 1;
-    min-width: 0;
+/* Link utama */
+.modern-menu {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
 }
 
-.user-welcome {
-    font-size: 0.7rem;
-    color: #9ca3af;
-    line-height: 1.1;
-}
-
-.user-name {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #111827;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.user-arrow {
+.modern-link {
+    color: #ffffff;
+    padding: 0.50rem 1rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
     font-size: 0.9rem;
-    color: #9ca3af;
+    transition: 0.15s;
+    text-decoration: none;
 }
+
+.modern-link:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+.modern-link.active,
+.modern-link.active-dropdown {
+    background: rgba(255,255,255,0.30);
+    color: #ffffff;
+}
+
+/* Icon */
+.modern-icon {
+    width: 22px;
+    font-size: 1.1rem;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Submenu */
+.submenu {
+    padding-left: 1.5rem;
+    margin-top: 4px;
+    display: none;
+}
+
+.submenu.show {
+    display: block;
+}
+
+.sub-link {
+    color: #e3eaff;
+    padding: 4px 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.sub-link:hover {
+    background: rgba(255,255,255,0.20);
+}
+
+.sub-link.active {
+    background: rgba(255,255,255,0.30);
+    font-weight: 600;
+}
+
+/* Arrow dropdown */
+.dropdown-arrow {
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+}
+
+.has-dropdown.active-dropdown .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
 
 /* CSS pemilik */
 #suggest_pemilik div.hover-bg:hover {
