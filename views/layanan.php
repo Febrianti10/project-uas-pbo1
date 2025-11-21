@@ -4,14 +4,12 @@ $activeMenu = 'layanan';
 include __DIR__ . '/template/header.php';
 
 /*
-   NANTI:
-   - Data ini idealnya diambil dari database (tabel `layanan` / `paket`).
-   - Untuk frontend, kita buat array dulu supaya tampilan sudah kelihatan.
-   - Form di modal sudah disiapkan (method POST) -> tinggal kamu hubungkan
-     ke controller: index.php?page=layanan&action=update_paket / update_tambahan
+    Catatan:
+    - Nanti array ini bisa diganti menjadi fetch dari database.
+    - Untuk sekarang dibuat statis supaya tampilannya jadi.
 */
 
-// Paket utama: Daycare & Boarding
+// PAKET PENITIPAN
 $layananUtama = [
     [
         'kode'   => 'P001',
@@ -50,7 +48,7 @@ $layananUtama = [
     ],
 ];
 
-// Layanan tambahan
+// LAYANAN TAMBAHAN
 $layananTambahan = [
     [
         'kode'   => 'G001',
@@ -85,40 +83,40 @@ $layananTambahan = [
 
 <h2 class="mb-3">Data Layanan</h2>
 
-<!-- PAKET PENITIPAN (DAYCARE & BOARDING) -->
+<!-- ===========================
+     PAKET PENITIPAN
+=============================== -->
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white">
         <h5 class="card-title mb-0">Paket Penitipan (Daycare & Boarding)</h5>
     </div>
     <div class="card-body">
         <div class="row g-3">
-            <?php foreach ($layananUtama as $index => $l): ?>
-                <?php
-                    $modalId = 'modalEditPaket_' . htmlspecialchars($l['kode']);
-                    $detailLines = explode("\n", $l['detail']);
-                ?>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="fw-semibold mb-1"><?= htmlspecialchars($l['nama']); ?></h5>
-                            <span class="badge bg-primary mb-2"><?= htmlspecialchars($l['kode']); ?></span>
 
-                            <p class="mb-1 fw-semibold">
-                                Rp <?= number_format($l['harga'], 0, ',', '.'); ?>
-                                <span class="text-muted small"><?= htmlspecialchars($l['satuan']); ?></span>
+            <?php foreach ($layananUtama as $l): ?>
+                <?php
+                    $modalId = 'modal_' . $l['kode'];
+                    $detailList = explode("\n", $l['detail']);
+                ?>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-1"><?= $l['nama']; ?></h5>
+                            <span class="badge bg-primary"><?= $l['kode']; ?></span>
+
+                            <p class="fw-semibold mt-2 mb-1">
+                                Rp <?= number_format($l['harga'],0,',','.'); ?>
+                                <span class="small text-muted"><?= $l['satuan']; ?></span>
                             </p>
 
-                            <?php if (!empty($detailLines)): ?>
-                                <ul class="small text-muted mb-0 ps-3">
-                                    <?php foreach ($detailLines as $item): ?>
-                                        <li><?= htmlspecialchars($item); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
+                            <ul class="text-muted small ps-3">
+                                <?php foreach ($detailList as $d): ?>
+                                    <li><?= $d; ?></li>
+                                <?php endforeach; ?>
+                            </ul>
 
-                            <!-- Tombol buka modal edit -->
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm w-100 mt-3"
+                            <button class="btn btn-outline-primary btn-sm w-100 mt-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#<?= $modalId; ?>">
                                 <i class="bi bi-pencil-square me-1"></i> Kelola Paket
@@ -127,100 +125,92 @@ $layananTambahan = [
                     </div>
                 </div>
 
-                <!-- MODAL EDIT PAKET -->
-                <div class="modal fade" id="<?= $modalId; ?>" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <form class="modal-content"
-                          method="post"
-                          action="index.php?page=layanan&action=update_paket"
-                          onsubmit="return confirm('Yakin ingin mengubah data paket \'<?= htmlspecialchars($l['kode']); ?>\'?');">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Edit Paket: <?= htmlspecialchars($l['kode']); ?></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                      </div>
-                      <div class="modal-body">
-                        <input type="hidden" name="kode_paket" value="<?= htmlspecialchars($l['kode']); ?>">
+                <!-- Modal Edit Paket -->
+                <div class="modal fade" id="<?= $modalId; ?>" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form class="modal-content"
+                              method="post"
+                              action="index.php?page=layanan&action=update"
+                              onsubmit="return confirm('Yakin ingin mengubah paket <?= $l['kode']; ?> ?');">
 
-                        <div class="mb-3">
-                            <label class="form-label">Nama Paket</label>
-                            <input type="text"
-                                   name="nama_paket"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($l['nama']); ?>"
-                                   required>
-                        </div>
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Paket: <?= $l['kode']; ?></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Harga (Rp)</label>
-                            <input type="number"
-                                   name="harga"
-                                   class="form-control"
-                                   min="0"
-                                   value="<?= (int)$l['harga']; ?>"
-                                   required>
-                        </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="kode" value="<?= $l['kode']; ?>">
 
-                        <div class="mb-3">
-                            <label class="form-label">Satuan</label>
-                            <input type="text"
-                                   name="satuan"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($l['satuan']); ?>"
-                                   required>
-                            <small class="text-muted">Contoh: / hari, / sesi, / dosis</small>
-                        </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Paket</label>
+                                    <input type="text" name="nama" class="form-control" value="<?= $l['nama']; ?>" required>
+                                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Keterangan / Detail Paket</label>
-                            <textarea name="detail" class="form-control" rows="4"><?= htmlspecialchars($l['detail']); ?></textarea>
-                            <small class="text-muted">Bisa isi beberapa baris, satu fasilitas per baris.</small>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                      </div>
-                    </form>
-                  </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Harga</label>
+                                    <input type="number" name="harga" class="form-control" value="<?= $l['harga']; ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Satuan</label>
+                                    <input type="text" name="satuan" class="form-control" value="<?= $l['satuan']; ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Detail Paket</label>
+                                    <textarea name="detail" class="form-control" rows="4"><?= $l['detail']; ?></textarea>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
+
             <?php endforeach; ?>
+
         </div>
     </div>
 </div>
 
-<!-- LAYANAN TAMBAHAN -->
+<!-- ===========================
+     LAYANAN TAMBAHAN
+=============================== -->
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-secondary text-white">
         <h5 class="card-title mb-0">Layanan Tambahan</h5>
     </div>
     <div class="card-body">
         <div class="row g-3">
-            <?php foreach ($layananTambahan as $index => $l): ?>
-                <?php
-                    $modalId = 'modalEditTambah_' . htmlspecialchars($l['kode']);
-                    $detailLines = explode("\n", $l['detail']);
-                ?>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="fw-semibold mb-1"><?= htmlspecialchars($l['nama']); ?></h5>
-                            <span class="badge bg-secondary mb-2"><?= htmlspecialchars($l['kode']); ?></span>
 
-                            <p class="mb-1 fw-semibold">
-                                Rp <?= number_format($l['harga'], 0, ',', '.'); ?>
-                                <span class="text-muted small"><?= htmlspecialchars($l['satuan']); ?></span>
+            <?php foreach ($layananTambahan as $l): ?>
+                <?php
+                    $modalId = 'modal_' . $l['kode'];
+                    $detailList = explode("\n", $l['detail']);
+                ?>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-1"><?= $l['nama']; ?></h5>
+                            <span class="badge bg-secondary"><?= $l['kode']; ?></span>
+
+                            <p class="fw-semibold mt-2 mb-1">
+                                Rp <?= number_format($l['harga'],0,',','.'); ?>
+                                <span class="small text-muted"><?= $l['satuan']; ?></span>
                             </p>
 
-                            <?php if (!empty($detailLines)): ?>
-                                <ul class="small text-muted mb-0 ps-3">
-                                    <?php foreach ($detailLines as $item): ?>
-                                        <li><?= htmlspecialchars($item); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
+                            <ul class="text-muted small ps-3">
+                                <?php foreach ($detailList as $d): ?>
+                                    <li><?= $d; ?></li>
+                                <?php endforeach; ?>
+                            </ul>
 
-                            <button type="button"
-                                    class="btn btn-outline-secondary btn-sm w-100 mt-3"
+                            <button class="btn btn-outline-secondary btn-sm w-100 mt-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#<?= $modalId; ?>">
                                 <i class="bi bi-pencil-square me-1"></i> Kelola Layanan
@@ -229,61 +219,54 @@ $layananTambahan = [
                     </div>
                 </div>
 
-                <!-- MODAL EDIT LAYANAN TAMBAHAN -->
-                <div class="modal fade" id="<?= $modalId; ?>" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <form class="modal-content"
-                          method="post"
-                          action="index.php?page=layanan&action=update_tambahan"
-                          onsubmit="return confirm('Yakin ingin mengubah layanan \'<?= htmlspecialchars($l['kode']); ?>\'?');">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Edit Layanan: <?= htmlspecialchars($l['kode']); ?></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                      </div>
-                      <div class="modal-body">
-                        <input type="hidden" name="kode_layanan" value="<?= htmlspecialchars($l['kode']); ?>">
+                <!-- Modal Edit Layanan Tambahan -->
+                <div class="modal fade" id="<?= $modalId; ?>" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form class="modal-content"
+                              method="post"
+                              action="index.php?page=layanan&action=update"
+                              onsubmit="return confirm('Yakin ingin mengubah layanan <?= $l['kode']; ?> ?');">
 
-                        <div class="mb-3">
-                            <label class="form-label">Nama Layanan</label>
-                            <input type="text"
-                                   name="nama_layanan"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($l['nama']); ?>"
-                                   required>
-                        </div>
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Layanan: <?= $l['kode']; ?></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Harga (Rp)</label>
-                            <input type="number"
-                                   name="harga"
-                                   class="form-control"
-                                   min="0"
-                                   value="<?= (int)$l['harga']; ?>"
-                                   required>
-                        </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="kode" value="<?= $l['kode']; ?>">
 
-                        <div class="mb-3">
-                            <label class="form-label">Satuan</label>
-                            <input type="text"
-                                   name="satuan"
-                                   class="form-control"
-                                   value="<?= htmlspecialchars($l['satuan']); ?>"
-                                   required>
-                        </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Layanan</label>
+                                    <input type="text" name="nama" class="form-control" value="<?= $l['nama']; ?>" required>
+                                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Keterangan / Detail</label>
-                            <textarea name="detail" class="form-control" rows="4"><?= htmlspecialchars($l['detail']); ?></textarea>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                      </div>
-                    </form>
-                  </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Harga</label>
+                                    <input type="number" name="harga" class="form-control" value="<?= $l['harga']; ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Satuan</label>
+                                    <input type="text" name="satuan" class="form-control" value="<?= $l['satuan']; ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Detail</label>
+                                    <textarea name="detail" class="form-control" rows="4"><?= $l['detail']; ?></textarea>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
+
             <?php endforeach; ?>
+
         </div>
     </div>
 </div>
