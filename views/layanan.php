@@ -126,7 +126,7 @@ $layananTambahan = [
                 </div>
 
                 <!-- Modal Edit Paket -->
-                <div class="modal fade" id="<?= $modalId; ?>" tabindex="-1">
+                <div class="modal" id="<?= $modalId; ?>" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
                         <form class="modal-content"
                               method="post"
