@@ -5,6 +5,27 @@ include __DIR__ . '/template/header.php';
 
 $tab = $_GET['tab'] ?? 'pendaftaran'; // default tab
 ?>
+// =====================
+// DATA PAKET & LAYANAN
+// (sementara statis, nanti bisa diganti dari database)
+// =====================
+
+// Paket utama (harus sama dengan di views/layanan.php)
+$paketList = [
+    ['kode_paket' => 'P001', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) ≤ 5 kg', 'harga' => 50000],
+    ['kode_paket' => 'P002', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) > 5 kg', 'harga' => 60000],
+    ['kode_paket' => 'P003', 'nama_paket' => 'Paket Boarding',                       'harga' => 120000],
+    ['kode_paket' => 'P004', 'nama_paket' => 'Paket Boarding > 5 kg',                'harga' => 120000],
+    ['kode_paket' => 'P005', 'nama_paket' => 'Paket Boarding VIP',                   'harga' => 250000],
+];
+
+// Layanan tambahan
+$layananTambahanList = [
+    ['kode' => 'G001', 'nama_layanan' => 'Grooming Dasar',       'harga' => 100000, 'satuan' => '/ sesi'],
+    ['kode' => 'G002', 'nama_layanan' => 'Grooming Lengkap',     'harga' => 170000, 'satuan' => '/ sesi'],
+    ['kode' => 'L003', 'nama_layanan' => 'Vitamin / Suplemen',   'harga' => 50000,  'satuan' => '/ sekali pemberian'],
+    ['kode' => 'L004', 'nama_layanan' => 'Vaksin',               'harga' => 260000, 'satuan' => '/ dosis'],
+];
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-12">
