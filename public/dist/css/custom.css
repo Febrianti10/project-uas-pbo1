@@ -36,6 +36,17 @@ body {
     box-shadow: 0 6px 26px rgba(0, 0, 0, 0.08);
 }
 
+/* form kelola layanan */
+.modal *,
+.modal {
+    transform: none !important;
+}
+
+body.modal-open .card:hover {
+    transform: none !important;
+}
+
+
 /* ==============================
    HEADER JUDUL HALAMAN
 ============================== */

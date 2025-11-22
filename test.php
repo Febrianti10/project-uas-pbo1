@@ -1,2 +1,0 @@
-<?php
-echo "INI DARI PROJECT-UAS-PBO";

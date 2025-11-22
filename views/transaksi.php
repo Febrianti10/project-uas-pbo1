@@ -134,20 +134,11 @@ $tab = $_GET['tab'] ?? 'pendaftaran'; // default tab
                                     <label class="form-label mt-3">Nama Hewan</label>
                                     <input type="text" id="h_nama" class="form-control" readonly>
 
-                                    <label class="form-label">Pilih Hewan</label>
+                                    <label class="form-label">Jenis Hewan</label>
                                     <select name="hewan_id" class="form-select" id="hewanSelect" required>
                                         <option value="">-- Pilih Hewan --</option>
-                                        <?php foreach ($hewanList ?? [] as $h): ?>
-                                            <option value="<?= $h['id'] ?>"
-                                                data-nama="<?= htmlspecialchars($h['nama_hewan']) ?>"
-                                                data-jenis="<?= htmlspecialchars($h['jenis']) ?>"
-                                                data-ras="<?= htmlspecialchars($h['ras'] ?? '') ?>"
-                                                data-ukuran="<?= htmlspecialchars($h['ukuran'] ?? '') ?>"
-                                                data-warna="<?= htmlspecialchars($h['warna'] ?? '') ?>"
-                                                data-catatan="<?= htmlspecialchars($h['catatan'] ?? '') ?>">
-                                                <?= $h['nama_hewan'] ?> (<?= $h['jenis'] ?>)
-                                            </option>
-                                        <?php endforeach; ?>
+                                        <option value="Kucing">Kucing</option>
+                                        <option value="Anjing">Anjing</option>
                                     </select>
 
                                     <label class="form-label mt-3">Ras</label>
@@ -167,89 +158,113 @@ $tab = $_GET['tab'] ?? 'pendaftaran'; // default tab
                             <!-- ====================== -->
                             <!-- BAGIAN 3: LAYANAN     -->
                             <!-- ====================== -->
-                            <div class="col-12">
-                                <div class="card p-3">
-                                    <h6 class="mb-3 text-primary">Layanan</h6>
-
-                                    <div class="row g-3">
-                                        <!-- Layanan Utama -->
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Layanan Utama</label>
-                                            <select name="kode_paket" class="form-select" required>
-                                                <option value="">-- Pilih Layanan Utama --</option>
-                                                <?php foreach ($paketList ?? [] as $pk): ?>
-                                                    <option value="<?= $pk['kode_paket'] ?>">
-                                                        <?= $pk['nama_paket'] ?> - Rp <?= number_format($pk['harga'], 0, ',', '.') ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
 
                                         <!-- Layanan Tambahan (boleh lebih dari satu) -->
-                                        <div class="col-lg-8">
-                                            <label class="form-label">Layanan Tambahan</label>
-                                            <div class="row g-2">
-                                                <?php foreach ($layananTambahanList ?? [] as $lt): ?>
-                                                    <div class="col-md-4">
-                                                        <label class="form-check form-check-inline">
-                                                            <input type="checkbox"
-                                                                name="layanan_tambahan[]"
-                                                                value="<?= $lt['kode'] ?>"
-                                                                class="form-check-input">
-                                                            <span class="form-check-label">
-                                                                <?= htmlspecialchars($lt['nama_layanan']) ?>
-                                                            </span>
-                                                        </label>
+                                        <div class="col-12">
+                                            <div class="card p-3">
+                                                <h6 class="mb-3 text-primary">Layanan</h6>
+
+                                                <div class="row g-3">
+                                                    <!-- Layanan Utama -->
+                                                    <div class="col-lg-4">
+                                                        <label class="form-label">Layanan Utama</label>
+                                                        <select name="kode_paket" class="form-select" id="paketSelect" required>
+                                                            <option value="">-- Pilih Layanan Utama --</option>
+                                                            <?php foreach ($paketList as $pk): ?>
+                                                                <option value="<?= $pk['kode_paket'] ?>">
+                                                                    <?= $pk['nama_paket'] ?> - Rp <?= number_format($pk['harga'], 0, ',', '.') ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
                                                     </div>
-                                                <?php endforeach; ?>
-                                                <?php if (empty($layananTambahanList ?? [])): ?>
-                                                    <p class="text-muted small mb-0">
-                                                        Data layanan tambahan belum diisi.
-                                                    </p>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- ====================== -->
-                            <!-- BAGIAN 4: DETAIL TITIP -->
-                            <!-- ====================== -->
-                            <div class="col-12">
-                                <div class="card p-3">
-                                    <h6 class="mb-3 text-primary">Detail Penitipan</h6>
+                                                    <!-- Layanan Tambahan: dropdown dengan checkbox -->
+                                                    <div class="col-lg-8">
+                                                        <label class="form-label d-block">Layanan Tambahan</label>
 
-                                    <div class="row g-3">
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Tanggal Masuk</label>
-                                            <input type="date" name="tgl_masuk" class="form-control"
-                                                value="<?= date('Y-m-d') ?>" required>
-                                        </div>
+                                                        <div class="dropdown">
+                                                            <!-- Tombol seperti form-select -->
+                                                            <button class="form-select text-start d-flex justify-content-between align-items-center"
+                                                                type="button"
+                                                                id="dropdownLayananTambahan"
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false">
+                                                                <span id="ltLabel">Pilih layanan tambahan (opsional)</span>
+                                                            </button>
 
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Lama Inap (hari)</label>
-                                            <input type="number" name="lama_inap" class="form-control"
-                                                min="1" value="1" required>
-                                        </div>
+                                                            <!-- Isi dropdown: checkbox -->
+                                                            <div class="dropdown-menu w-100 p-2"
+                                                                aria-labelledby="dropdownLayananTambahan"
+                                                                style="max-height: 260px; overflow-y: auto;">
 
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Nomor Kandang</label>
-                                            <input type="text" name="no_kandang" class="form-control"
-                                                placeholder="K-05" required>
-                                        </div>
-                                    </div>
+                                                                <?php foreach ($layananTambahanList ?? [] as $lt): ?>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input lt-checkbox"
+                                                                            type="checkbox"
+                                                                            value="<?= $lt['kode'] ?>"
+                                                                            id="lt_<?= $lt['kode'] ?>">
+                                                                        <label class="form-check-label small" for="lt_<?= $lt['kode'] ?>">
+                                                                            <?= htmlspecialchars($lt['nama_layanan']) ?>
+                                                                            - Rp <?= number_format($lt['harga'], 0, ',', '.') ?>
+                                                                            <?= $lt['satuan']; ?>
+                                                                        </label>
+                                                                    </div>
+                                                                <?php endforeach; ?>
 
-                                </div>
-                            </div>
+                                                                <?php if (empty($layananTambahanList ?? [])): ?>
+                                                                    <p class="text-muted small mb-0">
+                                                                        Data layanan tambahan belum diisi.
+                                                                    </p>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
 
-                        </div><!-- /.row -->
+                                                        <!-- hidden input untuk dikirim ke server -->
+                                                        <div id="ltHiddenContainer"></div>
 
-                        <div class="d-flex justify-content-end mt-3">
-                            <button class="btn btn-primary">
-                                Simpan & Cetak Bukti
-                            </button>
-                        </div>
+                                                        <small class="text-muted">
+                                                            Bisa pilih lebih dari satu layanan tambahan (opsional).
+                                                        </small>
+                                                    </div>
+
+
+                                                    <!-- ====================== -->
+                                                    <!-- BAGIAN 4: DETAIL TITIP -->
+                                                    <!-- ====================== -->
+                                                    <div class="col-12">
+                                                        <div class="card p-3">
+                                                            <h6 class="mb-3 text-primary">Detail Penitipan</h6>
+
+                                                            <div class="row g-3">
+                                                                <div class="col-lg-4">
+                                                                    <label class="form-label">Tanggal Masuk</label>
+                                                                    <input type="date" name="tgl_masuk" class="form-control"
+                                                                        value="<?= date('Y-m-d') ?>" required>
+                                                                </div>
+
+                                                                <div class="col-lg-4">
+                                                                    <label class="form-label">Lama Inap (hari)</label>
+                                                                    <input type="number" name="lama_inap" class="form-control"
+                                                                        min="1" value="1" required>
+                                                                </div>
+
+                                                                <div class="col-lg-4">
+                                                                    <label class="form-label">Nomor Kandang</label>
+                                                                    <input type="text" name="no_kandang" class="form-control"
+                                                                        placeholder="K-05" required>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div><!-- /.row -->
+
+                                                <div class="d-flex justify-content-end mt-3">
+                                                    <button class="btn btn-primary">
+                                                        Simpan & Cetak Bukti
+                                                    </button>
+                                                </div>
                     </form>
 
                     <!-- Script kecil untuk autofill data pemilik & hewan -->

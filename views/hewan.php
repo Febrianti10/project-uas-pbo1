@@ -4,13 +4,15 @@ $activeMenu = 'hewan';
 include __DIR__ . '/template/header.php';
 
 /*
-  Controller sebaiknya mengirimkan:
-  $totalHewan
-  $totalKucing
-  $totalAnjing
+  Controller sebaiknya mengirimkan (DARI TRANSAKSI PENITIPAN, BUKAN INPUT MANUAL):
+
+  $totalHewan   = total distinct hewan yang pernah dititipkan
+  $totalKucing  = total distinct hewan jenis "Kucing"
+  $totalAnjing  = total distinct hewan jenis "Anjing"
+
   $hewanList = [
       [
-          'id'         => 1,
+          'id'         => 1,                // id hewan (bisa dari tabel hewan atau dari transaksi)
           'nama'       => 'Mochi',
           'jenis'      => 'Kucing',
           'ras'        => 'Persia',
@@ -77,9 +79,10 @@ $hewanList   = $hewanList   ?? [];
 <div class="card shadow-sm border-0">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">Daftar Hewan</h5>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHewan">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Hewan
-        </button>
+        <span class="text-muted small">
+            Data hewan diperbarui otomatis dari transaksi penitipan.
+        </span>
+        <!-- Tidak ada tombol Tambah Hewan di sini -->
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -93,14 +96,15 @@ $hewanList   = $hewanList   ?? [];
                         <th>Pemilik</th>
                         <th>No. Telp Pemilik</th>
                         <th>Catatan</th>
-                        <th style="width: 90px;">Aksi</th>
+                        <!-- Kalau memang tidak boleh diedit/hapus, kolom Aksi bisa dihapus -->
+                        <!-- <th style="width: 90px;">Aksi</th> -->
                     </tr>
                 </thead>
                 <tbody>
                 <?php if (empty($hewanList)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-3">
-                            Belum ada data hewan. Tambahkan hewan baru.
+                        <td colspan="7" class="text-center text-muted py-3">
+                            Belum ada data hewan karena belum ada transaksi penitipan.
                         </td>
                     </tr>
                 <?php else: ?>
@@ -113,6 +117,8 @@ $hewanList   = $hewanList   ?? [];
                             <td><?= htmlspecialchars($h['pemilik']); ?></td>
                             <td><?= htmlspecialchars($h['no_telp']); ?></td>
                             <td class="small text-muted"><?= htmlspecialchars($h['catatan'] ?? '-'); ?></td>
+                            <!-- Kalau mau read-only, blok Aksi ini dihapus saja -->
+                            <!--
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="index.php?page=hewan&action=edit&id=<?= urlencode($h['id']); ?>" class="btn btn-outline-secondary">
@@ -125,6 +131,7 @@ $hewanList   = $hewanList   ?? [];
                                     </a>
                                 </div>
                             </td>
+                            -->
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -132,59 +139,6 @@ $hewanList   = $hewanList   ?? [];
             </table>
         </div>
     </div>
-</div>
-
-<!-- Modal Tambah/Edit Hewan (sederhana, backend nanti yang bedakan tambah/edit) -->
-<div class="modal fade" id="modalHewan" tabindex="-1" aria-labelledby="modalHewanLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <form action="index.php?page=hewan&action=store" method="post">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalHewanLabel">Tambah Hewan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Nama Hewan</label>
-              <input type="text" name="nama" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Jenis</label>
-              <select name="jenis" class="form-select" required>
-                <option value="">-- Pilih Jenis --</option>
-                <option value="Kucing">Kucing</option>
-                <option value="Anjing">Anjing</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Ras</label>
-              <input type="text" name="ras" class="form-control" placeholder="Persia, Pomeranian, dll">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Pemilik</label>
-              <input type="text" name="pemilik" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">No. Telp Pemilik</label>
-              <input type="text" name="no_telp" class="form-control" required>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Catatan (opsional)</label>
-              <textarea name="catatan" class="form-control" rows="2" placeholder="Alergi, kebiasaan khusus, dll."></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i> Simpan
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <?php include __DIR__ . '/template/footer.php'; ?>
