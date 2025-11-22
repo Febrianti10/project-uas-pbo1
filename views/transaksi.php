@@ -3,14 +3,12 @@ $pageTitle  = 'Transaksi Penitipan Hewan';
 $activeMenu = 'transaksi';
 include __DIR__ . '/template/header.php';
 
-$tab = $_GET['tab'] ?? 'pendaftaran'; // default tab
-?>
-// =====================
-// DATA PAKET & LAYANAN
-// (sementara statis, nanti bisa diganti dari database)
-// =====================
+/*
+|======================================================
+|  DATA PAKET & LAYANAN (sementara statis)
+|======================================================
+*/
 
-// Paket utama (harus sama dengan di views/layanan.php)
 $paketList = [
     ['kode_paket' => 'P001', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) ≤ 5 kg', 'harga' => 50000],
     ['kode_paket' => 'P002', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) > 5 kg', 'harga' => 60000],
@@ -19,28 +17,31 @@ $paketList = [
     ['kode_paket' => 'P005', 'nama_paket' => 'Paket Boarding VIP',                   'harga' => 250000],
 ];
 
-// Layanan tambahan
 $layananTambahanList = [
-    ['kode' => 'G001', 'nama_layanan' => 'Grooming Dasar',       'harga' => 100000, 'satuan' => '/ sesi'],
-    ['kode' => 'G002', 'nama_layanan' => 'Grooming Lengkap',     'harga' => 170000, 'satuan' => '/ sesi'],
-    ['kode' => 'L003', 'nama_layanan' => 'Vitamin / Suplemen',   'harga' => 50000,  'satuan' => '/ sekali pemberian'],
-    ['kode' => 'L004', 'nama_layanan' => 'Vaksin',               'harga' => 260000, 'satuan' => '/ dosis'],
+    ['kode' => 'G001', 'nama_layanan' => 'Grooming Dasar',     'harga' => 100000, 'satuan' => '/ sesi'],
+    ['kode' => 'G002', 'nama_layanan' => 'Grooming Lengkap',   'harga' => 170000, 'satuan' => '/ sesi'],
+    ['kode' => 'L003', 'nama_layanan' => 'Vitamin / Suplemen', 'harga' => 50000,  'satuan' => '/ pemberian'],
+    ['kode' => 'L004', 'nama_layanan' => 'Vaksin',             'harga' => 260000, 'satuan' => '/ dosis'],
 ];
+
+$tab = $_GET['tab'] ?? 'pendaftaran';
+?>
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-12">
         <div class="card shadow-sm">
+
             <div class="card-header border-0 pb-0">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <a class="nav-link <?= $tab === 'pendaftaran' ? 'active' : '' ?>"
-                            href="index.php?page=transaksi&tab=pendaftaran">
+                           href="index.php?page=transaksi&tab=pendaftaran">
                             Pendaftaran (Check-In)
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?= $tab === 'pengembalian' ? 'active' : '' ?>"
-                            href="index.php?page=transaksi&tab=pengembalian">
+                           href="index.php?page=transaksi&tab=pengembalian">
                             Pengembalian (Check-Out)
                         </a>
                     </li>
@@ -49,9 +50,6 @@ $layananTambahanList = [
 
             <div class="card-body">
 
-                <!-- ======================================================== -->
-                <!-- ================ TAB 1 : PENDAFTARAN =================== -->
-                <!-- ======================================================== -->
                 <?php if ($tab === 'pendaftaran'): ?>
 
                     <h5 class="mb-3">Form Pendaftaran Penitipan</h5>
@@ -59,340 +57,197 @@ $layananTambahanList = [
                     <form method="post" action="index.php?page=transaksi&action=save_checkin">
                         <div class="row g-4">
 
-                            <!-- ======================== -->
-                            <!-- BAGIAN 1: DATA PEMILIK  -->
-                            <!-- ======================== -->
+                            <!-- INFORMASI PEMILIK -->
                             <div class="col-lg-6">
-                                <div class="card p-3 h-100">
+                                <div class="card p-3 h-100 position-relative">
                                     <h6 class="mb-3 text-primary">Informasi Pemilik</h6>
 
-                                    <label class="form-label">Nama Pemilik</label>
-                                    <input type="text" id="search_pemilik" class="form-control" autocomplete="off" placeholder="Ketik nama pemilik...">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nama Pemilik</label>
+                                        <input type="text" id="search_pemilik" class="form-control"
+                                               autocomplete="off" placeholder="Ketik nama pemilik...">
+                                        <div id="suggest_pemilik"
+                                             class="border rounded bg-white position-absolute w-100 shadow-sm d-none"
+                                             style="z-index: 9999;"></div>
+                                        <input type="hidden" name="pemilik_id" id="pemilik_id">
+                                    </div>
 
-                                    <!-- Kotak suggestion -->
-                                    <div id="suggest_pemilik" class="border rounded bg-white position-absolute w-100 shadow-sm d-none" style="z-index: 9999;"></div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nomor HP</label>
+                                        <input type="text" id="p_hp" class="form-control" readonly>
+                                    </div>
 
-                                    <!-- Hidden untuk menyimpan ID pemilik yang dipilih -->
-                                    <input type="hidden" name="pemilik_id" id="pemilik_id">
-
-                                    <label class="form-label mt-3">Nomor HP</label>
-                                    <input type="text" id="p_hp" class="form-control" readonly>
-
-                                    <label class="form-label mt-3">Alamat</label>
-                                    <textarea id="p_alamat" class="form-control" rows="2" readonly></textarea>
-
+                                    <div class="mb-3">
+                                        <label class="form-label">Alamat</label>
+                                        <textarea id="p_alamat" class="form-control" rows="2" readonly></textarea>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Dropdown Pemilik hewan -->
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-
-                                    let input = document.getElementById('search_pemilik');
-                                    let box = document.getElementById('suggest_pemilik');
-
-                                    // ketika mengetik
-                                    input.addEventListener('keyup', function() {
-                                        let q = this.value.trim();
-                                        if (q.length < 1) {
-                                            box.classList.add('d-none');
-                                            return;
-                                        }
-
-                                        fetch("ajax/get_pemilik.php?q=" + encodeURIComponent(q))
-                                            .then(res => res.json())
-                                            .then(data => {
-                                                let html = "";
-
-                                                if (data.length === 0) {
-                                                    html = `<div class="p-2 text-muted small">Tidak ditemukan</div>`;
-                                                } else {
-                                                    data.forEach(p => {
-                                                        html += `
-                                                <div class="p-2 hover-bg" 
-                                                    style="cursor:pointer"
-                                                    data-id="${p.id}"
-                                                    data-nama="${p.nama}"
-                                                    data-hp="${p.no_telp}"
-                                                    data-alamat="${p.alamat}">
-                                                    ${p.nama} <span class="text-muted small">(${p.no_telp})</span>
-                                                </div>
-                                            `;
-                                                    });
-                                                }
-
-                                                box.innerHTML = html;
-                                                box.classList.remove('d-none');
-
-                                                // klik item suggestion
-                                                document.querySelectorAll('#suggest_pemilik div[data-id]').forEach(item => {
-                                                    item.addEventListener('click', function() {
-                                                        // isi input
-                                                        input.value = this.dataset.nama;
-                                                        document.getElementById('pemilik_id').value = this.dataset.id;
-
-                                                        // auto-fill kolom lain
-                                                        document.getElementById('p_hp').value = this.dataset.hp;
-                                                        document.getElementById('p_alamat').value = this.dataset.alamat;
-
-                                                        // sembunyikan suggestion
-                                                        box.classList.add('d-none');
-                                                    });
-                                                });
-                                            });
-                                    });
-                                });
-                            </script>
-
-
-                            <!-- ====================== -->
-                            <!-- BAGIAN 2: DATA HEWAN  -->
-                            <!-- ====================== -->
+                            <!-- INFORMASI HEWAN -->
                             <div class="col-lg-6">
                                 <div class="card p-3 h-100">
                                     <h6 class="mb-3 text-primary">Informasi Hewan</h6>
 
-                                    <label class="form-label mt-3">Nama Hewan</label>
-                                    <input type="text" id="h_nama" class="form-control" readonly>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nama Hewan</label>
+                                        <input type="text" name="nama_hewan" class="form-control" required>
+                                    </div>
 
-                                    <label class="form-label">Jenis Hewan</label>
-                                    <select name="hewan_id" class="form-select" id="hewanSelect" required>
-                                        <option value="">-- Pilih Hewan --</option>
-                                        <option value="Kucing">Kucing</option>
-                                        <option value="Anjing">Anjing</option>
-                                    </select>
+                                    <div class="mb-3">
+                                        <label class="form-label">Jenis Hewan</label>
+                                        <select name="jenis_hewan" class="form-select" required>
+                                            <option value="">-- Pilih Hewan --</option>
+                                            <option value="Kucing">Kucing</option>
+                                            <option value="Anjing">Anjing</option>
+                                        </select>
+                                    </div>
 
-                                    <label class="form-label mt-3">Ras</label>
-                                    <input type="text" id="h_ras" class="form-control" readonly>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ras</label>
+                                        <input type="text" name="ras" class="form-control">
+                                    </div>
 
-                                    <label class="form-label mt-3">Ukuran</label>
-                                    <input type="text" id="h_ukuran" class="form-control" readonly>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ukuran</label>
+                                        <select name="ukuran" class="form-select">
+                                            <option value="">-- Pilih Ukuran --</option>
+                                            <option value="Kecil">Kecil</option>
+                                            <option value="Sedang">Sedang</option>
+                                            <option value="Besar">Besar</option>
+                                        </select>
+                                    </div>
 
-                                    <label class="form-label mt-3">Warna</label>
-                                    <input type="text" id="h_warna" class="form-control" readonly>
+                                    <div class="mb-3">
+                                        <label class="form-label">Warna</label>
+                                        <input type="text" name="warna" class="form-control">
+                                    </div>
 
-                                    <label class="form-label mt-3">Catatan Khusus</label>
-                                    <textarea id="h_catatan" class="form-control" rows="2" readonly></textarea>
+                                    <div class="mb-3">
+                                        <label class="form-label">Catatan Khusus</label>
+                                        <textarea name="catatan" class="form-control" rows="2"></textarea>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- ====================== -->
-                            <!-- BAGIAN 3: LAYANAN     -->
-                            <!-- ====================== -->
+                            <!-- LAYANAN -->
+                            <div class="col-12">
+                                <div class="card p-3">
+                                    <h6 class="mb-3 text-primary">Layanan</h6>
 
-                                        <!-- Layanan Tambahan (boleh lebih dari satu) -->
-                                        <div class="col-12">
-                                            <div class="card p-3">
-                                                <h6 class="mb-3 text-primary">Layanan</h6>
+                                    <div class="row g-3">
 
-                                                <div class="row g-3">
-                                                    <!-- Layanan Utama -->
-                                                    <div class="col-lg-4">
-                                                        <label class="form-label">Layanan Utama</label>
-                                                        <select name="kode_paket" class="form-select" id="paketSelect" required>
-                                                            <option value="">-- Pilih Layanan Utama --</option>
-                                                            <?php foreach ($paketList as $pk): ?>
-                                                                <option value="<?= $pk['kode_paket'] ?>">
-                                                                    <?= $pk['nama_paket'] ?> - Rp <?= number_format($pk['harga'], 0, ',', '.') ?>
-                                                                </option>
-                                                            <?php endforeach; ?>
-                                                        </select>
+                                        <!-- Paket Utama -->
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Paket Utama</label>
+                                            <select name="kode_paket" class="form-select" id="paketSelect" required>
+                                                <option value="">-- Pilih Paket --</option>
+                                                <?php foreach ($paketList as $pk): ?>
+                                                    <option value="<?= $pk['kode_paket']; ?>"
+                                                            data-harga="<?= $pk['harga']; ?>">
+                                                        <?= $pk['nama_paket']; ?>
+                                                        - Rp <?= number_format($pk['harga'],0,',','.'); ?>/hari
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <!-- Layanan Tambahan (panel custom, bukan dropdown Bootstrap) -->
+                                        <div class="col-lg-8">
+                                            <label class="form-label d-block">Layanan Tambahan</label>
+
+                                            <!-- Tombol "pseudo-dropdown" -->
+                                            <button type="button"
+                                                    class="form-select text-start d-flex justify-content-between align-items-center"
+                                                    id="btnLayananTambahan">
+                                                <span id="ltLabel">Pilih layanan tambahan (opsional)</span>
+                                                <i class="bi bi-chevron-down ms-2 small"></i>
+                                            </button>
+
+                                            <!-- Panel yang dibuka/tutup manual (tidak pakai .dropdown-menu) -->
+                                            <div id="panelLayananTambahan"
+                                                 class="border rounded p-2 mt-1 d-none"
+                                                 style="max-height:260px; overflow-y:auto;">
+
+                                                <?php foreach ($layananTambahanList as $lt): ?>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input lt-checkbox"
+                                                               type="checkbox"
+                                                               name="layanan_tambahan[]"
+                                                               value="<?= $lt['kode']; ?>"
+                                                               data-harga="<?= $lt['harga']; ?>"
+                                                               id="lt_<?= $lt['kode']; ?>">
+                                                        <label class="form-check-label small" for="lt_<?= $lt['kode']; ?>">
+                                                            <?= $lt['nama_layanan']; ?>
+                                                            - Rp <?= number_format($lt['harga'],0,',','.'); ?>
+                                                            <?= $lt['satuan']; ?>
+                                                        </label>
                                                     </div>
+                                                <?php endforeach; ?>
 
-                                                    <!-- Layanan Tambahan: dropdown dengan checkbox -->
-                                                    <div class="col-lg-8">
-                                                        <label class="form-label d-block">Layanan Tambahan</label>
+                                            </div>
 
-                                                        <div class="dropdown">
-                                                            <!-- Tombol seperti form-select -->
-                                                            <button class="form-select text-start d-flex justify-content-between align-items-center"
-                                                                type="button"
-                                                                id="dropdownLayananTambahan"
-                                                                data-bs-toggle="dropdown"
-                                                                aria-expanded="false">
-                                                                <span id="ltLabel">Pilih layanan tambahan (opsional)</span>
-                                                            </button>
+                                            <small class="text-muted d-block mt-1">
+                                                Bisa pilih lebih dari satu layanan tambahan.
+                                            </small>
+                                        </div>
 
-                                                            <!-- Isi dropdown: checkbox -->
-                                                            <div class="dropdown-menu w-100 p-2"
-                                                                aria-labelledby="dropdownLayananTambahan"
-                                                                style="max-height: 260px; overflow-y: auto;">
+                                    </div>
 
-                                                                <?php foreach ($layananTambahanList ?? [] as $lt): ?>
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input lt-checkbox"
-                                                                            type="checkbox"
-                                                                            value="<?= $lt['kode'] ?>"
-                                                                            id="lt_<?= $lt['kode'] ?>">
-                                                                        <label class="form-check-label small" for="lt_<?= $lt['kode'] ?>">
-                                                                            <?= htmlspecialchars($lt['nama_layanan']) ?>
-                                                                            - Rp <?= number_format($lt['harga'], 0, ',', '.') ?>
-                                                                            <?= $lt['satuan']; ?>
-                                                                        </label>
-                                                                    </div>
-                                                                <?php endforeach; ?>
+                                    <!-- TOTAL -->
+                                    <div class="mt-4 p-3 bg-light rounded">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="small text-muted">Total Estimasi Biaya</div>
+                                                <h3 id="totalHarga" class="fw-bold text-primary mb-0">Rp 0</h3>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="total" id="totalInput">
+                                        <div class="small text-muted mt-1">
+                                            Total = (harga paket × lama inap) + jumlah layanan tambahan.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                                                <?php if (empty($layananTambahanList ?? [])): ?>
-                                                                    <p class="text-muted small mb-0">
-                                                                        Data layanan tambahan belum diisi.
-                                                                    </p>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                        </div>
+                            <!-- DETAIL PENITIPAN -->
+                            <div class="col-12">
+                                <div class="card p-3">
+                                    <h6 class="mb-3 text-primary">Detail Penitipan</h6>
 
-                                                        <!-- hidden input untuk dikirim ke server -->
-                                                        <div id="ltHiddenContainer"></div>
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Tanggal Masuk</label>
+                                            <input type="date" name="tgl_masuk" class="form-control"
+                                                   value="<?= date('Y-m-d'); ?>" required>
+                                        </div>
 
-                                                        <small class="text-muted">
-                                                            Bisa pilih lebih dari satu layanan tambahan (opsional).
-                                                        </small>
-                                                    </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Lama Inap (hari)</label>
+                                            <input type="number" name="lama_inap" id="lamaInap"
+                                                   class="form-control" min="1" value="1" required>
+                                        </div>
 
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Nomor Kandang</label>
+                                            <input type="text" name="no_kandang" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                                    <!-- ====================== -->
-                                                    <!-- BAGIAN 4: DETAIL TITIP -->
-                                                    <!-- ====================== -->
-                                                    <div class="col-12">
-                                                        <div class="card p-3">
-                                                            <h6 class="mb-3 text-primary">Detail Penitipan</h6>
+                        </div><!-- /.row g-4 -->
 
-                                                            <div class="row g-3">
-                                                                <div class="col-lg-4">
-                                                                    <label class="form-label">Tanggal Masuk</label>
-                                                                    <input type="date" name="tgl_masuk" class="form-control"
-                                                                        value="<?= date('Y-m-d') ?>" required>
-                                                                </div>
-
-                                                                <div class="col-lg-4">
-                                                                    <label class="form-label">Lama Inap (hari)</label>
-                                                                    <input type="number" name="lama_inap" class="form-control"
-                                                                        min="1" value="1" required>
-                                                                </div>
-
-                                                                <div class="col-lg-4">
-                                                                    <label class="form-label">Nomor Kandang</label>
-                                                                    <input type="text" name="no_kandang" class="form-control"
-                                                                        placeholder="K-05" required>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-
-                                                </div><!-- /.row -->
-
-                                                <div class="d-flex justify-content-end mt-3">
-                                                    <button class="btn btn-primary">
-                                                        Simpan & Cetak Bukti
-                                                    </button>
-                                                </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-primary">Simpan &amp; Cetak Bukti</button>
+                        </div>
                     </form>
 
-                    <!-- Script kecil untuk autofill data pemilik & hewan -->
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const pemilikSelect = document.getElementById('pemilikSelect');
-                            const hewanSelect = document.getElementById('hewanSelect');
-
-                            if (pemilikSelect) {
-                                pemilikSelect.addEventListener('change', function() {
-                                    const opt = this.options[this.selectedIndex];
-                                    document.getElementById('p_nama').value = opt.dataset.nama || '';
-                                    document.getElementById('p_hp').value = opt.dataset.hp || '';
-                                    document.getElementById('p_alamat').value = opt.dataset.alamat || '';
-                                });
-                            }
-
-                            if (hewanSelect) {
-                                hewanSelect.addEventListener('change', function() {
-                                    const opt = this.options[this.selectedIndex];
-                                    document.getElementById('h_nama').value = opt.dataset.nama || '';
-                                    document.getElementById('h_jenis').value = opt.dataset.jenis || '';
-                                    document.getElementById('h_ras').value = opt.dataset.ras || '';
-                                    document.getElementById('h_ukuran').value = opt.dataset.ukuran || '';
-                                    document.getElementById('h_warna').value = opt.dataset.warna || '';
-                                    document.getElementById('h_catatan').value = opt.dataset.catatan || '';
-                                });
-                            }
-                        });
-                    </script>
-
-                    <!-- ======================================================== -->
-                    <!-- ================ TAB 2 : PENGEMBALIAN ================== -->
-                    <!-- ======================================================== -->
                 <?php else: ?>
 
-                    <h5 class="mb-3">Proses Pengembalian Hewan & Pembayaran</h5>
+                    <h5 class="mb-3">Proses Pengembalian Hewan &amp; Pembayaran</h5>
 
-                    <form method="get" class="mb-4">
-                        <input type="hidden" name="page" value="transaksi">
-                        <input type="hidden" name="tab" value="pengembalian">
-
-                        <div class="row g-2">
-                            <div class="col-md-5">
-                                <label class="form-label">Nomor Form (no_form)</label>
-                                <input type="text" name="no_form" class="form-control"
-                                    placeholder="Misal: F-20250101-001"
-                                    value="<?= htmlspecialchars($_GET['no_form'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button class="btn btn-outline-primary w-100">Cari</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <?php if (!empty($transaksi)): ?>
-
-                        <div class="p-3 mb-3 bg-body-secondary rounded">
-                            <div><strong>No Form:</strong> <?= $transaksi['no_form'] ?></div>
-                            <div><strong>Pemilik:</strong> <?= $transaksi['nama_pemilik'] ?></div>
-                            <div><strong>Hewan:</strong> <?= $transaksi['nama_hewan'] ?></div>
-                            <div><strong>Paket:</strong> <?= $transaksi['nama_paket'] ?></div>
-                            <div><strong>Lama Inap:</strong> <?= $transaksi['lama_inap'] ?> hari</div>
-                            <div><strong>Total Tagihan:</strong> Rp <?= number_format($transaksi['total'], 0, ',', '.') ?></div>
-                        </div>
-
-                        <form method="post" action="index.php?page=transaksi&action=save_checkout">
-                            <input type="hidden" name="no_form" value="<?= $transaksi['no_form'] ?>">
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Diskon (Rp)</label>
-                                    <input type="number" min="0" name="disc" class="form-control" value="0">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">DP (Rp)</label>
-                                    <input type="number" min="0" name="dp" class="form-control"
-                                        value="<?= $transaksi['dp'] ?? 0 ?>">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">Metode Pembayaran</label>
-                                    <select name="metode" class="form-select">
-                                        <option value="cash">Cash</option>
-                                        <option value="qris">QRIS</option>
-                                        <option value="transfer">Transfer Bank</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-success">Simpan & Cetak Struk</button>
-                            </div>
-                        </form>
-
-                    <?php elseif (isset($_GET['no_form'])): ?>
-
-                        <div class="alert alert-warning">
-                            No form <strong><?= htmlspecialchars($_GET['no_form']) ?></strong> tidak ditemukan.
-                        </div>
-
-                    <?php else: ?>
-
-                        <p class="text-muted">Masukkan nomor formulir di atas untuk melakukan check-out.</p>
-
-                    <?php endif; ?>
+                    <p class="text-muted">Bagian check-out bisa kamu lanjutkan nanti (logic backend).</p>
 
                 <?php endif; ?>
 
@@ -400,5 +255,84 @@ $layananTambahanList = [
         </div>
     </div>
 </div>
+
+<!-- ============================
+     SCRIPT HALAMAN INI
+============================= -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // -------- Toggle panel layanan tambahan (tanpa dropdown Bootstrap) --------
+    const btnLT   = document.getElementById('btnLayananTambahan');
+    const panelLT = document.getElementById('panelLayananTambahan');
+    const ltLabel = document.getElementById('ltLabel');
+    const checkboxes = document.querySelectorAll('.lt-checkbox');
+    const paketSelect = document.getElementById('paketSelect');
+    const lamaInap = document.getElementById('lamaInap');
+    const totalHarga = document.getElementById('totalHarga');
+    const totalInput = document.getElementById('totalInput');
+
+    if (btnLT && panelLT) {
+        btnLT.addEventListener('click', function () {
+            panelLT.classList.toggle('d-none');
+        });
+    }
+
+    function formatRupiah(num) {
+        return num.toLocaleString('id-ID');
+    }
+
+    function updateLabelTambahan() {
+        if (!ltLabel) return;
+        const selected = Array.from(checkboxes).filter(cb => cb.checked);
+        if (selected.length === 0) {
+            ltLabel.textContent = 'Pilih layanan tambahan (opsional)';
+        } else if (selected.length === 1) {
+            const lbl = selected[0].nextElementSibling;
+            ltLabel.textContent = lbl ? lbl.textContent.trim() : '1 layanan dipilih';
+        } else {
+            ltLabel.textContent = selected.length + ' layanan dipilih';
+        }
+    }
+
+    function hitungTotal() {
+        let total = 0;
+        const hari = parseInt(lamaInap?.value || '1', 10);
+
+        // Paket utama
+        if (paketSelect && paketSelect.value) {
+            const opt = paketSelect.options[paketSelect.selectedIndex];
+            const hargaPaket = parseInt(opt.getAttribute('data-harga') || '0', 10);
+            if (!isNaN(hargaPaket) && hari > 0) {
+                total += hargaPaket * hari;
+            }
+        }
+
+        // Layanan tambahan
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const h = parseInt(cb.dataset.harga || '0', 10);
+                if (!isNaN(h)) total += h;
+            }
+        });
+
+        if (totalHarga) totalHarga.textContent = 'Rp ' + formatRupiah(isNaN(total) ? 0 : total);
+        if (totalInput) totalInput.value = isNaN(total) ? 0 : total;
+    }
+
+    // Event listeners
+    if (paketSelect) paketSelect.addEventListener('change', hitungTotal);
+    if (lamaInap) lamaInap.addEventListener('input', hitungTotal);
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+            updateLabelTambahan();
+            hitungTotal();
+        });
+    });
+
+    // Init
+    updateLabelTambahan();
+    hitungTotal();
+});
+</script>
 
 <?php include __DIR__ . '/template/footer.php'; ?>
