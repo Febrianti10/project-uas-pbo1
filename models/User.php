@@ -26,26 +26,6 @@ class User {
                 'role' => 'kasir' 
             ];
         }
-        
-        // --- 2. Skenario Nyata (Menggunakan Database) ---
-        try {
-            // Asumsi: $pdo adalah objek koneksi database (PDO)
-            $pdo = Database::getConnection(); 
-            
-            $stmt = $pdo->prepare("SELECT id, username, password, role FROM users WHERE username = :username LIMIT 1");
-            $stmt->bindParam(':username', $username);
-            $stmt->execute();
-            
-            // Rubrik: Struktur DB logis
-            // Jika user ditemukan, kembalikan datanya
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-            
-        } catch (PDOException $e) {
-            // Tangani error database
-            // Rubrik: Error tidak crash program
-            error_log("Database Error di User.php: " . $e->getMessage());
-            return null;
-        }
     }
     
     // ... Anda dapat menambahkan method lain seperti createUser, updateUserPassword, dll.
