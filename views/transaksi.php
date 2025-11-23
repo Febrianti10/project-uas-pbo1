@@ -243,12 +243,6 @@ $tab = $_GET['tab'] ?? 'pendaftaran'; // default tab
                                                                 </div>
 
                                                                 <div class="col-lg-4">
-                                                                    <label class="form-label">Lama Inap (hari)</label>
-                                                                    <input type="number" name="lama_inap" class="form-control"
-                                                                        min="1" value="1" required>
-                                                                </div>
-
-                                                                <div class="col-lg-4">
                                                                     <label class="form-label">Nomor Kandang</label>
                                                                     <input type="text" name="no_kandang" class="form-control"
                                                                         placeholder="K-05" required>
