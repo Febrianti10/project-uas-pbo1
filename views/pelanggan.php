@@ -20,7 +20,7 @@ $pelangganList = $pelangganList ?? [];
     <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
             <h5 class="card-title mb-1">Daftar Pelanggan</h5>
-            <p class="text-muted small mb-0">
+            <p class="text-muted small mb-0"><br><br>
                 Data pemilik hewan yang sudah terdaftar pada sistem.
             </p>
         </div>
@@ -34,10 +34,6 @@ $pelangganList = $pelangganList ?? [];
                 <input type="text" class="form-control border-start-0"
                        placeholder="Cari nama / no. HP" autocomplete="off">
             </div>
-
-            <button type="button" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i> Tambah Pelanggan
-            </button>
         </div>
     </div>
 </div>

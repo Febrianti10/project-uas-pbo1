@@ -65,7 +65,7 @@ $sisaSlotAnjing = $kapasitasAnjingMaks > 0
                     <div class="text-muted small mt-1">Keseluruhan</div>
                 </div>
                 <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center"
-                     style="width:42px;height:42px;">
+                    style="width:42px;height:42px;">
                     <i class="bi bi-house-heart text-primary"></i>
                 </div>
             </div>
@@ -82,7 +82,7 @@ $sisaSlotAnjing = $kapasitasAnjingMaks > 0
                     <div class="text-muted small mt-1">Saat ini</div>
                 </div>
                 <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center"
-                     style="width:42px;height:42px;">
+                    style="width:42px;height:42px;">
                     <i class="bi bi-cat text-info"></i>
                 </div>
             </div>
@@ -99,25 +99,8 @@ $sisaSlotAnjing = $kapasitasAnjingMaks > 0
                     <div class="text-muted small mt-1">Saat ini</div>
                 </div>
                 <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center"
-                     style="width:42px;height:42px;">
+                    style="width:42px;height:42px;">
                     <i class="bi bi-dog text-warning"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pendapatan Hari Ini -->
-    <div class="col-lg-3 col-md-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-muted small text-uppercase mb-1">Pendapatan Hari Ini</div>
-                    <span class="fs-4 fw-semibold mb-0" data-money="<?= (int)$totalPendapatanHariIni; ?>">Rp 0</span>
-                    <div class="text-muted small mt-1">Total transaksi masuk</div>
-                </div>
-                <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center"
-                     style="width:42px;height:42px;">
-                    <i class="bi bi-cash-stack text-success"></i>
                 </div>
             </div>
         </div>
@@ -188,7 +171,9 @@ $sisaSlotAnjing = $kapasitasAnjingMaks > 0
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-transparent border-bottom-0 d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Transaksi Terbaru</h5>
-                <a href="index.php?page=transaksi" class="small text-decoration-none">Lihat semua</a>
+                <a href="index.php?page=transaksi&tab=pengembalian" class="small text-decoration-none">
+                    Lihat semua
+                </a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

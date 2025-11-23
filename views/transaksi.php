@@ -225,18 +225,18 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
                                 <div class="card p-3">
                                     <h6 class="mb-3 text-primary">Detail Penitipan</h6>
 
-                                    <div class="row g-3">
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Tanggal Masuk</label>
-                                            <input type="date" name="tgl_masuk" class="form-control"
-                                                   value="<?= date('Y-m-d'); ?>" required>
-                                        </div>
+                                                            <div class="row g-3">
+                                                                <div class="col-lg-4">
+                                                                    <label class="form-label">Tanggal Masuk</label>
+                                                                    <input type="date" name="tgl_masuk" class="form-control"
+                                                                        value="<?= date('Y-m-d') ?>" required>
+                                                                </div>
 
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Lama Inap (hari)</label>
-                                            <input type="number" name="lama_inap" id="lamaInap"
-                                                   class="form-control" min="1" value="1" required>
-                                        </div>
+                                                                <div class="col-lg-4">
+                                                                    <label class="form-label">Lama Inap (hari)</label>
+                                                                    <input type="number" name="lama_inap" class="form-control"
+                                                                        min="1" value="1" required>
+                                                                </div>
 
                                         <div class="col-lg-4">
                                             <label class="form-label">Nomor Kandang</label>
