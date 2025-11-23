@@ -268,18 +268,19 @@ $layananTambahan = [
      LAYANAN TAMBAHAN
 =============================== -->
 <div class="card shadow-sm mb-4">
-    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="card-title mb-0">Layanan Tambahan</h5>
-            <small class="d-block">Grooming, vaksin, vitamin, dan layanan opsional lainnya.</small>
-        </div>
-        <button type="button"
-                class="btn btn-light btn-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#modal_tambah_tambahan">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Layanan
-        </button>
+    <div class="d-flex justify-content-between align-items-center p-3 bg-secondary text-white rounded-top">
+    <div>
+        <h5 class="mb-0">Layanan Tambahan</h5>
+        <small>Grooming, vaksin, vitamin, dan layanan opsional lainnya.</small>
     </div>
+
+    <button class="btn btn-light"
+            data-bs-toggle="modal"
+            data-bs-target="#modalAddTambahan">
+        <i class="bi bi-plus"></i> Tambah Layanan
+    </button>
+</div>
+
     <div class="card-body">
         <div class="row g-3">
 
