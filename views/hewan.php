@@ -28,6 +28,8 @@ $totalHewan  = $totalHewan  ?? 0;
 $totalKucing = $totalKucing ?? 0;
 $totalAnjing = $totalAnjing ?? 0;
 $hewanList   = $hewanList   ?? [];
+$totalkandangKecil  = $totalkandangKecil ?? 0;  
+$totalkandangBesar = $totalkandangBesar  ?? 0;
 ?>
 
 <h2 class="mb-3">Data Hewan</h2>
@@ -73,6 +75,44 @@ $hewanList   = $hewanList   ?? [];
             </div>
         </div>
     </div>
+</div>
+
+<h5 class="mb-3 mt-4">Data Kandang</h5>
+
+<div class="row g-3 mb-3">
+
+    <!-- Kandang Kecil -->
+    <div class="col-lg-6 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small text-uppercase mb-1">Kandang Kecil (KK)</div>
+                    <span class="fs-3 fw-semibold"><?= (int)$totalkandangKecil; ?></span>
+                </div>
+                <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center"
+                     style="width:40px;height:40px;">
+                    <i class="bi bi-house-heart text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kandang Besar -->
+    <div class="col-lg-6 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small text-uppercase mb-1">Kandang Besar (KB)</div>
+                    <span class="fs-3 fw-semibold"><?= (int)$totalkandangBesar; ?></span>
+                </div>
+                <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center"
+                     style="width:40px;height:40px;">
+                    <i class="bi bi-building text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- Tabel Data Hewan -->
