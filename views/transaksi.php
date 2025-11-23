@@ -6,9 +6,11 @@ include __DIR__ . '/template/header.php';
 /*
 |======================================================
 |  DATA PAKET & LAYANAN (sementara statis)
+|  (nanti bisa diganti ambil dari database)
 |======================================================
 */
 
+// Paket utama
 $paketList = [
     ['kode_paket' => 'P001', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) ≤ 5 kg', 'harga' => 50000],
     ['kode_paket' => 'P002', 'nama_paket' => 'Paket Daycare (Tanpa Menginap) > 5 kg', 'harga' => 60000],
@@ -17,12 +19,17 @@ $paketList = [
     ['kode_paket' => 'P005', 'nama_paket' => 'Paket Boarding VIP',                   'harga' => 250000],
 ];
 
+// Layanan tambahan
 $layananTambahanList = [
     ['kode' => 'G001', 'nama_layanan' => 'Grooming Dasar',     'harga' => 100000, 'satuan' => '/ sesi'],
     ['kode' => 'G002', 'nama_layanan' => 'Grooming Lengkap',   'harga' => 170000, 'satuan' => '/ sesi'],
     ['kode' => 'L003', 'nama_layanan' => 'Vitamin / Suplemen', 'harga' => 50000,  'satuan' => '/ pemberian'],
     ['kode' => 'L004', 'nama_layanan' => 'Vaksin',             'harga' => 260000, 'satuan' => '/ dosis'],
 ];
+
+// Default nilai dari backend (supaya view tidak error kalau belum ada controller)
+$hasilPencarian = $hasilPencarian ?? [];
+$transaksi      = $transaksi      ?? null;
 
 $tab = $_GET['tab'] ?? 'pendaftaran';
 ?>
@@ -52,6 +59,9 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
 
                 <?php if ($tab === 'pendaftaran'): ?>
 
+                    <!-- =======================================================
+                         TAB 1 — PENDAFTARAN
+                    ======================================================== -->
                     <h5 class="mb-3">Form Pendaftaran Penitipan</h5>
 
                     <form method="post" action="index.php?page=transaksi&action=save_checkin">
@@ -152,11 +162,11 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
                                             </select>
                                         </div>
 
-                                        <!-- Layanan Tambahan (panel custom, bukan dropdown Bootstrap) -->
+                                        <!-- Layanan Tambahan -->
                                         <div class="col-lg-8">
                                             <label class="form-label d-block">Layanan Tambahan</label>
 
-                                            <!-- Tombol "pseudo-dropdown" -->
+                                            <!-- Tombol "pseudo dropdown" -->
                                             <button type="button"
                                                     class="form-select text-start d-flex justify-content-between align-items-center"
                                                     id="btnLayananTambahan">
@@ -164,7 +174,7 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
                                                 <i class="bi bi-chevron-down ms-2 small"></i>
                                             </button>
 
-                                            <!-- Panel yang dibuka/tutup manual (tidak pakai .dropdown-menu) -->
+                                            <!-- Panel yang dibuka/tutup manual -->
                                             <div id="panelLayananTambahan"
                                                  class="border rounded p-2 mt-1 d-none"
                                                  style="max-height:260px; overflow-y:auto;">
@@ -236,7 +246,7 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
                                 </div>
                             </div>
 
-                        </div><!-- /.row g-4 -->
+                        </div><!-- /.row -->
 
                         <div class="d-flex justify-content-end mt-3">
                             <button class="btn btn-primary">Simpan &amp; Cetak Bukti</button>
@@ -245,9 +255,133 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
 
                 <?php else: ?>
 
+                    <!-- =======================================================
+                         TAB 2 — PENGEMBALIAN
+                    ======================================================== -->
+
                     <h5 class="mb-3">Proses Pengembalian Hewan &amp; Pembayaran</h5>
 
-                    <p class="text-muted">Bagian check-out bisa kamu lanjutkan nanti (logic backend).</p>
+                    <!-- FORM PENCARIAN -->
+                    <form method="get" class="mb-4">
+                        <input type="hidden" name="page" value="transaksi">
+                        <input type="hidden" name="tab" value="pengembalian">
+
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <label class="form-label">Cari Transaksi</label>
+                                <input type="text" name="keyword" class="form-control"
+                                    placeholder="Nama pemilik / nama hewan / No Form"
+                                    value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button class="btn btn-outline-primary w-100">
+                                    Cari
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- HASIL PENCARIAN -->
+                    <?php if (!empty($hasilPencarian)): ?>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No Form</th>
+                                        <th>Pemilik</th>
+                                        <th>Hewan</th>
+                                        <th>Paket</th>
+                                        <th>Lama</th>
+                                        <th>Status</th>
+                                        <th width="120">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($hasilPencarian as $trx): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($trx['no_form']); ?></td>
+                                            <td><?= htmlspecialchars($trx['nama_pemilik']); ?></td>
+                                            <td><?= htmlspecialchars($trx['nama_hewan']); ?></td>
+                                            <td><?= htmlspecialchars($trx['nama_paket']); ?></td>
+                                            <td><?= (int)$trx['lama_inap']; ?> hari</td>
+                                            <td>
+                                                <?php
+                                                    $status = $trx['status'] ?? 'Menginap';
+                                                    $color = $status === 'Menginap'
+                                                        ? 'warning'
+                                                        : ($status === 'Lunas' ? 'success' : 'secondary');
+                                                ?>
+                                                <span class="badge text-bg-<?= $color; ?>">
+                                                    <?= htmlspecialchars($status); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="index.php?page=transaksi&tab=pengembalian&no_form=<?= urlencode($trx['no_form']); ?>"
+                                                   class="btn btn-sm btn-primary">
+                                                   Pilih
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- DETAIL TRANSAKSI & FORM CHECKOUT -->
+                    <?php if (!empty($transaksi)): ?>
+
+                        <div class="card p-3 mb-3 shadow-sm">
+                            <h6 class="mb-2 text-primary">Detail Transaksi</h6>
+
+                            <div><strong>No Form:</strong> <?= htmlspecialchars($transaksi['no_form']); ?></div>
+                            <div><strong>Pemilik:</strong> <?= htmlspecialchars($transaksi['nama_pemilik']); ?></div>
+                            <div><strong>Hewan:</strong> <?= htmlspecialchars($transaksi['nama_hewan']); ?></div>
+                            <div><strong>Paket:</strong> <?= htmlspecialchars($transaksi['nama_paket']); ?></div>
+                            <div><strong>Lama Inap:</strong> <?= (int)$transaksi['lama_inap']; ?> hari</div>
+                            <div><strong>Total Awal:</strong> Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></div>
+                        </div>
+
+                        <form method="post" action="index.php?page=transaksi&action=save_checkout">
+                            <input type="hidden" name="no_form" value="<?= htmlspecialchars($transaksi['no_form']); ?>">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Diskon (Rp)</label>
+                                    <input type="number" name="disc" class="form-control" min="0" value="0">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">DP (Rp)</label>
+                                    <input type="number" name="dp" class="form-control" min="0"
+                                           value="<?= (int)($transaksi['dp'] ?? 0); ?>">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Metode Pembayaran</label>
+                                    <select name="metode" class="form-select">
+                                        <option value="cash">Cash</option>
+                                        <option value="qris">QRIS</option>
+                                        <option value="transfer">Transfer Bank</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-success">
+                                    Simpan &amp; Cetak Struk
+                                </button>
+                            </div>
+                        </form>
+
+                    <?php elseif (isset($_GET['keyword']) && empty($hasilPencarian)): ?>
+
+                        <div class="alert alert-warning">
+                            Tidak ada transaksi ditemukan untuk pencarian:
+                            <strong><?= htmlspecialchars($_GET['keyword']); ?></strong>
+                        </div>
+
+                    <?php endif; ?>
 
                 <?php endif; ?>
 
@@ -261,7 +395,6 @@ $tab = $_GET['tab'] ?? 'pendaftaran';
 ============================= -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // -------- Toggle panel layanan tambahan (tanpa dropdown Bootstrap) --------
     const btnLT   = document.getElementById('btnLayananTambahan');
     const panelLT = document.getElementById('panelLayananTambahan');
     const ltLabel = document.getElementById('ltLabel');
@@ -271,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalHarga = document.getElementById('totalHarga');
     const totalInput = document.getElementById('totalInput');
 
+    // Toggle panel layanan tambahan
     if (btnLT && panelLT) {
         btnLT.addEventListener('click', function () {
             panelLT.classList.toggle('d-none');
@@ -295,6 +429,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function hitungTotal() {
+        if (!totalHarga || !totalInput) return;
+
         let total = 0;
         const hari = parseInt(lamaInap?.value || '1', 10);
 
@@ -315,11 +451,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        if (totalHarga) totalHarga.textContent = 'Rp ' + formatRupiah(isNaN(total) ? 0 : total);
-        if (totalInput) totalInput.value = isNaN(total) ? 0 : total;
+        totalHarga.textContent = 'Rp ' + formatRupiah(isNaN(total) ? 0 : total);
+        totalInput.value = isNaN(total) ? 0 : total;
     }
 
-    // Event listeners
     if (paketSelect) paketSelect.addEventListener('change', hitungTotal);
     if (lamaInap) lamaInap.addEventListener('input', hitungTotal);
     checkboxes.forEach(cb => {
@@ -329,7 +464,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Init
     updateLabelTambahan();
     hitungTotal();
 });

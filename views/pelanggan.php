@@ -1,23 +1,48 @@
 <?php
 $pageTitle  = 'Data Pelanggan';
-$activeMenu = 'pemilik';
+$activeMenu = 'pemilik';           // supaya menu Data Pelanggan aktif
 include __DIR__ . '/template/header.php';
+
+/*
+   Nanti controller bisa mengirimkan:
+   $pelangganList = [
+       ['kode' => 'PLG001', 'nama' => 'Budi', 'hp' => '0812...', 'alamat' => '...'],
+       ...
+   ];
+*/
+$pelangganList = $pelangganList ?? [];
 ?>
 
 <h2 class="mb-3">Data Pelanggan</h2>
 
+<!-- BARIS ATAS: judul daftar + tombol tambah -->
 <div class="card shadow-sm mb-3">
-    <div class="card-body d-flex justify-content-between align-items-center">
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
-            <h5 class="card-title mb-0">Daftar Pelanggan</h5>
-            <small class="text-muted">Data pemilik hewan yang sudah terdaftar.</small>
+            <h5 class="card-title mb-1">Daftar Pelanggan</h5>
+            <p class="text-muted small mb-0">
+                Data pemilik hewan yang sudah terdaftar pada sistem.
+            </p>
         </div>
-        <button type="button" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Pelanggan
-        </button>
+
+        <div class="d-flex gap-2">
+            <!-- (opsional) kotak pencarian -->
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control border-start-0"
+                       placeholder="Cari nama / no. HP" autocomplete="off">
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Tambah Pelanggan
+            </button>
+        </div>
     </div>
 </div>
 
+<!-- TABEL DATA PELANGGAN -->
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -32,12 +57,35 @@ include __DIR__ . '/template/header.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Nanti baris ini diganti loop dari database -->
+                <?php if (empty($pelangganList)): ?>
                     <tr>
                         <td colspan="5" class="text-center text-muted py-4">
-                            Belum ada data pelanggan.
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="bi bi-people fs-3 mb-1"></i>
+                                <span>Belum ada data pelanggan.</span>
+                            </div>
                         </td>
                     </tr>
+                <?php else: ?>
+                    <?php foreach ($pelangganList as $p): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($p['kode']); ?></td>
+                            <td><?= htmlspecialchars($p['nama']); ?></td>
+                            <td><?= htmlspecialchars($p['hp']); ?></td>
+                            <td><?= htmlspecialchars($p['alamat']); ?></td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
                 </tbody>
             </table>
         </div>
