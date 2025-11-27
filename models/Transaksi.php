@@ -11,32 +11,52 @@ class Transaksi
         $this->db = Database::getInstance();
     }
 
-    public function getAll()
+    // --- FUNGSI CREATE (PENTING DIPERBAIKI) ---
+    public function create($data)
     {
-        $sql = "SELECT 
-                    t.*,
-                    p.nama_pelanggan,
-                    h.nama_hewan,
-                    l.nama_layanan,
-                    k.kode_kandang
-                FROM transaksi t
-                LEFT JOIN pelanggan p ON t.id_pelanggan = p.id_pelanggan
-                LEFT JOIN hewan h ON t.id_hewan = h.id_hewan
-                LEFT JOIN layanan l ON t.id_layanan = l.id_layanan
-                LEFT JOIN kandang k ON t.id_kandang = k.id_kandang
-                ORDER BY t.created_at DESC";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll();
+        try {
+            // Generate nomor transaksi (sesuai kolom database 'no_transaksi')
+            $noTransaksi = $this->generateNoTransaksi();
+            
+            // PERBAIKAN: 
+            // 1. Gunakan 'no_transaksi' (bukan kode_transaksi)
+            // 2. Gunakan status 'Proses' (sesuai ENUM database)
+            $sql = "INSERT INTO transaksi 
+                    (no_transaksi, id_pelanggan, id_hewan, id_kandang, id_layanan, 
+                     tanggal_masuk, durasi, total_biaya, status)
+                    VALUES 
+                    (:no_transaksi, :id_pelanggan, :id_hewan, :id_kandang, :id_layanan,
+                     :tanggal_masuk, :durasi, :total_biaya, 'Proses')";
+            
+            $stmt = $this->db->prepare($sql);
+            
+            return $stmt->execute([
+                "no_transaksi" => $noTransaksi,
+                "id_pelanggan" => $data["id_pelanggan"],
+                "id_hewan" => $data["id_hewan"], 
+                "id_kandang" => $data["id_kandang"],
+                "id_layanan" => $data["id_layanan"],
+                "tanggal_masuk" => $data["tanggal_masuk"],
+                "durasi" => $data["durasi"],
+                "total_biaya" => $data["total_biaya"]
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Error create transaksi: " . $e->getMessage());
+            return false;
+        }
     }
 
+    // --- FUNGSI AMBIL DATA AKTIF (PENTING DIPERBAIKI) ---
     public function getActiveTransactions()
     {
-        // PERBAIKAN: Ubah 'active' menjadi 'Proses'
+        // PERBAIKAN: 
+        // 1. Select t.id (nama asli di DB) lalu alias-kan jadi id_transaksi (biar view tidak error)
+        // 2. Select t.no_transaksi alias kode_transaksi
+        // 3. WHERE status = 'Proses'
         $sql = "SELECT 
-                    t.id_transaksi,
-                    t.kode_transaksi,
+                    t.id as id_transaksi,
+                    t.no_transaksi as kode_transaksi,
                     p.nama_pelanggan,
                     h.nama_hewan,
                     h.jenis as jenis_hewan,
@@ -56,41 +76,34 @@ class Transaksi
         return $stmt->fetchAll();
     }
 
-    public function create($data)
+    public function getAll()
     {
-        try {
-            $kodeTransaksi = $this->generateKodeTransaksi();
-            
-            // PERBAIKAN: Ubah 'active' menjadi 'Proses' di INSERT
-            $sql = "INSERT INTO transaksi 
-                    (kode_transaksi, id_pelanggan, id_hewan, id_kandang, id_layanan, 
-                     tanggal_masuk, durasi, total_biaya, status)
-                    VALUES 
-                    (:kode_transaksi, :id_pelanggan, :id_hewan, :id_kandang, :id_layanan,
-                     :tanggal_masuk, :durasi, :total_biaya, 'Proses')";
-            
-            $stmt = $this->db->prepare($sql);
-            
-            return $stmt->execute([
-                "kode_transaksi" => $kodeTransaksi,
-                "id_pelanggan" => $data["id_pelanggan"],
-                "id_hewan" => $data["id_hewan"], 
-                "id_kandang" => $data["id_kandang"],
-                "id_layanan" => $data["id_layanan"],
-                "tanggal_masuk" => $data["tanggal_masuk"],
-                "durasi" => $data["durasi"],
-                "total_biaya" => $data["total_biaya"]
-            ]);
-            
-        } catch (Exception $e) {
-            error_log("Error create transaksi: " . $e->getMessage());
-            return false;
-        }
+        $sql = "SELECT 
+                    t.id as id_transaksi,
+                    t.no_transaksi as kode_transaksi,
+                    t.*,
+                    p.nama_pelanggan,
+                    h.nama_hewan,
+                    l.nama_layanan,
+                    k.kode_kandang
+                FROM transaksi t
+                LEFT JOIN pelanggan p ON t.id_pelanggan = p.id_pelanggan
+                LEFT JOIN hewan h ON t.id_hewan = h.id_hewan
+                LEFT JOIN layanan l ON t.id_layanan = l.id_layanan
+                LEFT JOIN kandang k ON t.id_kandang = k.id_kandang
+                ORDER BY t.created_at DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
     public function getById($id)
     {
+        // PERBAIKAN: WHERE t.id (bukan id_transaksi)
         $sql = "SELECT 
+                    t.id as id_transaksi,
+                    t.no_transaksi as kode_transaksi,
                     t.*,
                     p.nama_pelanggan,
                     p.no_hp,
@@ -109,7 +122,7 @@ class Transaksi
                 LEFT JOIN hewan h ON t.id_hewan = h.id_hewan
                 LEFT JOIN layanan l ON t.id_layanan = l.id_layanan
                 LEFT JOIN kandang k ON t.id_kandang = k.id_kandang
-                WHERE t.id_transaksi = ?";
+                WHERE t.id = ?";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
@@ -122,27 +135,20 @@ class Transaksi
 
             $transaksi = $this->getById($id);
 
-            // Logika pembayaran (PaymentMethod) biarkan tetap sama...
-            // (Disederhanakan di sini, asumsi logic PaymentMethod sudah jalan)
-            // ...
-
-            // PERBAIKAN: Ubah status menjadi 'Selesai' (sesuai ENUM database)
+            // PERBAIKAN: WHERE id_transaksi = :id diganti jadi WHERE id = :id
+            // Status jadi 'Selesai'
             $sql = "UPDATE transaksi 
                     SET tanggal_keluar = :tanggal_keluar, 
                         status = 'Selesai'
-                    WHERE id_transaksi = :id";
+                    WHERE id = :id";
             
-            // Catatan: Jika kolom tanggal_keluar_aktual tidak ada di DB, pakai tanggal_keluar saja
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 'id' => $id,
                 'tanggal_keluar' => $data['tanggal_keluar_aktual']
             ]);
             
-            // Update status hewan jadi 'sudah_diambil' (pastikan enum hewan support ini)
-            // Jika enum hewan cuma ('tersedia', 'sedang_dititipkan'), kembalikan ke 'tersedia' saja
-            // Tapi amannya kita set ke 'tersedia' agar bisa dipakai lagi nanti
-            $sqlHewan = "UPDATE hewan SET status = 'tersedia' WHERE id_hewan = :id";
+            $sqlHewan = "UPDATE hewan SET status = 'tersedia' WHERE id = :id";
             $stmtHewan = $this->db->prepare($sqlHewan);
             $stmtHewan->execute(['id' => $transaksi['id_hewan']]);
             
@@ -156,22 +162,22 @@ class Transaksi
         }
     }
 
-    private function generateKodeTransaksi()
+    // Helper untuk generate TRX-001, TRX-002
+    private function generateNoTransaksi()
     {
+        // PERBAIKAN: Gunakan nama kolom 'no_transaksi'
         $sql = "SELECT MAX(CAST(SUBSTRING(no_transaksi, 5) AS UNSIGNED)) as max_number 
                 FROM transaksi 
                 WHERE no_transaksi LIKE 'TRX-%'";
         
-        // Perhatikan: Kolom di DB kamu 'no_transaksi' atau 'kode_transaksi'?
-        // Sesuai SQL awal: no_transaksi VARCHAR(20)
-        // Jadi kita sesuaikan querynya:
-        $sql = "SELECT MAX(id) as max_id FROM transaksi"; 
+        // Fallback jika query di atas ribet/error di TiDB, pakai hitung ID saja
+        // $sql = "SELECT MAX(id) as max_id FROM transaksi";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetch();
         
-        $nextId = ($result['max_id'] ?? 0) + 1;
-        return 'TRX-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        $nextNum = ($result['max_number'] ?? 0) + 1;
+        return 'TRX-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
     }
 }
