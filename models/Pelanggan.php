@@ -7,7 +7,8 @@ class Pelanggan
 
     public function __construct()
     {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
 
     /**
@@ -31,11 +32,11 @@ class Pelanggan
     }
 
     /**
-     * Cari pelanggan untuk autocomplete - VERSI FIX
+     * Cari pelanggan untuk autocomplete
      */
     public function searchForAutocomplete($keyword)
     {
-        // Gunakan query langsung tanpa prepared statement untuk simplicity
+        // PERBAIKAN SECURITY: Gunakan Prepared Statement biar tidak kena Hack/SQL Injection
         $sql = "SELECT 
                     p.id_pelanggan as id,
                     p.kode_pelanggan as kode,
@@ -43,13 +44,14 @@ class Pelanggan
                     p.no_hp as hp,
                     p.alamat
                 FROM pelanggan p
-                WHERE p.nama_pelanggan LIKE '%" . $keyword . "%'
-                OR p.no_hp LIKE '%" . $keyword . "%'
-                OR p.kode_pelanggan LIKE '%" . $keyword . "%'
+                WHERE p.nama_pelanggan LIKE :kw
+                OR p.no_hp LIKE :kw
+                OR p.kode_pelanggan LIKE :kw
                 ORDER BY p.nama_pelanggan
                 LIMIT 10";
 
-        $stmt = $this->db->query($sql);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['kw' => "%$keyword%"]);
         return $stmt->fetchAll();
     }
 
@@ -60,7 +62,6 @@ class Pelanggan
     public function create($data)
     {
         try {
-            // Generate kode pelanggan otomatis
             $kode = $this->generateKodePelanggan();
 
             $sql = "INSERT INTO pelanggan 
@@ -70,18 +71,19 @@ class Pelanggan
 
             $stmt = $this->db->prepare($sql);
 
-            return $stmt->execute([
+            // PERBAIKAN LOGIKA: Cek hasil execute dulu, baru return ID
+            $result = $stmt->execute([
                 "kode_pelanggan" => $kode,
                 "nama_pelanggan" => $data["nama_pelanggan"],
                 "no_hp" => $data["no_hp"],
                 "alamat" => $data["alamat"] ?? null,
             ]);
+            
             if ($result) {
-            return $this->db->lastInsertId(); // Return the inserted ID
-        } else {
-            return false;
-        }
-        
+                return $this->db->lastInsertId(); // Return ID baru
+            } else {
+                return false;
+            }
 
         } catch (Exception $e) {
             error_log("Error create pelanggan: " . $e->getMessage());
@@ -161,7 +163,7 @@ class Pelanggan
     }
 
     /**
-     * Cari pelanggan berdasarkan nama/no HP
+     * Cari pelanggan berdasarkan nama/no HP (Versi Full Page)
      */
     public function search($keyword)
     {
@@ -232,9 +234,8 @@ class Pelanggan
         $result = $stmt->fetch();
         return ($result['total'] ?? 0) > 0;
     }
-    // Tambahkan method ini di class Pelanggan
-public function getLastInsertId() {
-    return $this->db->lastInsertId();
-}
 
+    public function getLastInsertId() {
+        return $this->db->lastInsertId();
+    }
 }

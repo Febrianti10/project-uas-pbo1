@@ -1,25 +1,25 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/PaymentMethod.php'; // PaymentMethod + CashPayment, TransferPayment, dll.
+require_once __DIR__ . '/PaymentMethod.php'; 
 
-/**
- * Model Transaksi
- * CRUD untuk transaksi penitipan hewan
- * 
- */
 class Transaksi
 {
     private $db;
 
     public function __construct()
     {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
 
-    /**
-     * Ambil transaksi aktif (hewan yang sedang menginap)
-     */
+    // ... (SISANYA BIARKAN SAMA, COPY PASTE KODE LAMA KAMU DI BAWAH SINI) ...
+    // TIPS: Karena file ini sangat panjang, kamu cukup GANTI bagian __construct() di atas saja
+    // di file aslimu, tidak perlu copy semuanya dari sini kalau isinya sama.
+    // Tapi pastikan baris $this->db = Database::getInstance(); sudah terpasang.
 
+    // --- PASTE KODE TRANSAKSI BAWAH SINI (mulai dari public function getAll) ---
+    // (Agar chat tidak kepanjangan, saya potong di sini karena hanya construct yang error)
+    
     public function getAll()
     {
         $sql = "SELECT 
@@ -158,21 +158,7 @@ class Transaksi
         $nextNumber = ($result['max_number'] ?? 0) + 1;
         return 'TRX' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
-
     
-    /**
-     * GET BY ID - Ambil transaksi lengkap dengan detail
-     * 
-     * @param int $id
-     * @return array|false
-     */
-    
-    /**
-     * GET BY NOMOR - Ambil transaksi berdasarkan nomor transaksi
-     * 
-     * @param string $nomorTransaksi
-     * @return array|false
-     */
     public function getByNomor($nomorTransaksi) {
         $sql = "SELECT t.*, 
                        p.nama_pelanggan, p.no_hp, p.alamat,
@@ -195,12 +181,6 @@ class Transaksi
         return $transaksi;
     }
     
-    /**
-     * GET DETAIL LAYANAN - Ambil detail layanan transaksi
-     * 
-     * @param int $idTransaksi
-     * @return array
-     */
     public function getDetailLayanan($idTransaksi) {
         $sql = "SELECT dt.*, l.kode_layanan, l.nama_layanan, l.kategori_layanan, dt.harga_satuan, dt.jumlah, dt.subtotal
                 FROM detail_transaksi dt
@@ -212,12 +192,6 @@ class Transaksi
         return $stmt->fetchAll();
     }
     
-    /**
-     * SEARCH - Cari transaksi berdasarkan keyword
-     * 
-     * @param string $keyword
-     * @return array
-     */
     public function search($keyword) {
         $sql = "SELECT t.*, 
                        p.nama_pelanggan,
@@ -235,30 +209,20 @@ class Transaksi
         return $stmt->fetchAll();
     }
     
-    /**
-     * UPDATE CHECKOUT - Proses check-out & pembayaran
-     * 
-     * @param int $id
-     * @param array $data
-     * @return bool
-     */
     public function updateCheckout($id, $data) {
         try {
             $this->db->beginTransaction();
 
-            // Ambil transaksi lama (untuk detail & durasi jika perlu)
             $transaksi = $this->getById($id);
 
-            // Jika total_biaya tidak disediakan, hitung ulang dari detail_transaksi dan durasi
             if (!isset($data['total_biaya']) || empty($data['total_biaya'])) {
                 $detailLayananStored = $transaksi['detail_layanan'] ?? [];
                 
-                // ubah format detail agar cocok dengan calculateTotalFromInputs
                 $detailForCalc = [];
                 foreach ($detailLayananStored as $d) {
                     $detailForCalc[] = [
                         'harga' => $d['harga_satuan'] ?? $d['harga'] ?? 0,
-                        'qty' => $d['jumlah'] ?? $d['qty'] ?? 1
+                        'qty'   => $d['jumlah'] ?? $d['qty'] ?? 1
                     ];
                 }
 
@@ -273,24 +237,19 @@ class Transaksi
                 $data['diskon'] = $calc['diskon'];
             }
 
-            // Validasi metode pembayaran
             if (!isset($data['metode_pembayaran']) || empty($data['metode_pembayaran'])) {
                 throw new Exception("Metode pembayaran tidak boleh kosong");
             }
 
-            // Pilih kelas pembayaran langsung (tanpa factory)
             $methodKey = strtolower(trim($data['metode_pembayaran']));
             $paymentObj = null;
 
-            // mapping sederhana - sesuaikan nama metode dengan data input yang dikirim
             if (in_array($methodKey, ['cash', 'tunai'])) {
                 $paymentObj = new CashPayment();
             } elseif (in_array($methodKey, ['transfer', 'bank_transfer', 'bank transfer', 'bank'])) {
                 $paymentObj = new TransferPayment();
             } else {
-                // jika ada implementasi lain di PaymentMethod.php, tambahkan elseif di sini
-                // fallback: jika class bernama sama ada, coba instansiasi (lebih dinamis)
-                $classCandidate = ucfirst($methodKey) . 'Payment'; // contoh 'qris' => 'QrisPayment'
+                $classCandidate = ucfirst($methodKey) . 'Payment';
                 if (class_exists($classCandidate)) {
                     $paymentObj = new $classCandidate();
                 } else {
@@ -298,18 +257,15 @@ class Transaksi
                 }
             }
 
-            // Jalankan proses pembayaran (polymorphism)
             $paymentResult = $paymentObj->processPayment((float)$data['total_biaya'], [
                 'id_transaksi' => $id,
                 'meta' => $data['meta'] ?? []
             ]);
 
             if (!isset($paymentResult['success']) || $paymentResult['success'] !== true) {
-                // jika gagal, batalkan dan rollback
                 throw new Exception("Pembayaran gagal: " . ($paymentResult['detail'] ?? 'Unknown'));
             }
 
-            // Update transaksi (simpan metode & tandai lunas)
             $sql = "UPDATE transaksi 
                     SET tanggal_keluar_aktual = :tanggal_keluar,
                         jam_keluar_aktual = :jam_keluar,
@@ -332,7 +288,6 @@ class Transaksi
                 'metode_pembayaran' => $paymentObj->getName()
             ]);
             
-            // Update status hewan jadi sudah_diambil
             $sqlHewan = "UPDATE hewan SET status = 'sudah_diambil' WHERE id_hewan = :id";
             $stmtHewan = $this->db->prepare($sqlHewan);
             $stmtHewan->execute(['id' => $transaksi['id_hewan']]);
@@ -347,11 +302,6 @@ class Transaksi
         }
     }
     
-    /**
-     * GET SEDANG DITITIPKAN - Ambil semua transaksi yang masih berlangsung
-     * 
-     * @return array
-     */
     public function getSedangDititipkan() {
         $sql = "SELECT t.*, p.nama_pelanggan, h.nama_hewan
                 FROM transaksi t
@@ -365,12 +315,6 @@ class Transaksi
         return $stmt->fetchAll();
     }
     
-    /**
-     * GET LAPORAN HARIAN
-     * 
-     * @param string $tanggal (Y-m-d)
-     * @return array
-     */
     public function getLaporanHarian($tanggal) {
         $sql = "SELECT t.*, p.nama_pelanggan, h.nama_hewan
                 FROM transaksi t
@@ -384,13 +328,6 @@ class Transaksi
         return $stmt->fetchAll();
     }
     
-    /**
-     * HITUNG TOTAL PENDAPATAN
-     * 
-     * @param string $tanggalMulai
-     * @param string $tanggalAkhir
-     * @return float
-     */
     public function hitungPendapatan($tanggalMulai, $tanggalAkhir) {
         $sql = "SELECT SUM(total_biaya) as total 
                 FROM transaksi 
@@ -407,16 +344,9 @@ class Transaksi
         return (float)($result['total'] ?? 0);
     }
 
-    /**
-    * Hitung subtotal & total berdasarkan durasi dan detail layanan
-    * $durasiHari = int
-    * $detailLayanan = array of ['id_layanan', 'harga', 'qty'] OR ['id_layanan','harga_satuan','jumlah']
-    * $paketPerHari = float (jika ada paket harian)
-    */
     public function calculateTotalFromInputs(int $durasiHari, array $detailLayanan, float $paketPerHari = 0.0, float $diskon = 0.0) {
         $subtotalLayanan = 0.0;
         foreach ($detailLayanan as $d) {
-            // dukung kedua format: ['harga','qty'] atau ['harga_satuan','jumlah']
             $harga = isset($d['harga']) ? (float)$d['harga'] : (isset($d['harga_satuan']) ? (float)$d['harga_satuan'] : 0.0);
             $qty   = isset($d['qty']) ? (int)$d['qty'] : (isset($d['jumlah']) ? (int)$d['jumlah'] : 1);
             $subtotalLayanan += $harga * $qty;
@@ -424,7 +354,7 @@ class Transaksi
 
         $biayaPaket = $paketPerHari * max(1, $durasiHari);
         $subtotal = $biayaPaket + $subtotalLayanan;
-        $total = $subtotal - $diskon; // sesuaikan jika ada pajak, biaya tambahan, dsb.
+        $total = $subtotal - $diskon; 
 
         return [
             'biaya_paket' => $biayaPaket,

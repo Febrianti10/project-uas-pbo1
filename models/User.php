@@ -4,21 +4,17 @@ require_once __DIR__ . '/../config/database.php';
 /**
  * Model User
  * Untuk autentikasi kasir & admin
- * 
  */
 class User {
     private $db;
     
     public function __construct() {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
     
     /**
      * LOGIN - Autentikasi user
-     * 
-     * @param string $username
-     * @param string $password (plain text)
-     * @return array|false User data atau false jika gagal
      */
     public function login($username, $password) {
         $sql = "SELECT * FROM user WHERE username = :username LIMIT 1";
@@ -27,9 +23,7 @@ class User {
         $stmt->execute(['username' => $username]);
         $user = $stmt->fetch();
         
-        // Cek password (harus pakai password_verify karena di-hash)
         if ($user && password_verify($password, $user['password'])) {
-            // Jangan return password!
             unset($user['password']);
             return $user;
         }
@@ -39,9 +33,6 @@ class User {
     
     /**
      * GET BY ID
-     * 
-     * @param int $id
-     * @return array|false
      */
     public function getById($id) {
         $sql = "SELECT id_user, username, nama_lengkap, role, created_at 
@@ -54,9 +45,7 @@ class User {
     }
     
     /**
-     * GET ALL - Ambil semua user
-     * 
-     * @return array
+     * GET ALL
      */
     public function getAll() {
         $sql = "SELECT id_user, username, nama_lengkap, role, created_at 
@@ -69,13 +58,9 @@ class User {
     }
     
     /**
-     * CREATE - Tambah user baru
-     * 
-     * @param array $data ['username', 'password', 'nama_lengkap', 'role']
-     * @return bool
+     * CREATE
      */
     public function create($data) {
-        // Hash password dulu!
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         
         $sql = "INSERT INTO user (username, password, nama_lengkap, role) 
@@ -91,11 +76,7 @@ class User {
     }
     
     /**
-     * UPDATE - Update data user (tanpa password)
-     * 
-     * @param int $id
-     * @param array $data
-     * @return bool
+     * UPDATE
      */
     public function update($id, $data) {
         $sql = "UPDATE user 
@@ -114,11 +95,7 @@ class User {
     }
     
     /**
-     * UPDATE PASSWORD - Ganti password user
-     * 
-     * @param int $id
-     * @param string $newPassword (plain text)
-     * @return bool
+     * UPDATE PASSWORD
      */
     public function updatePassword($id, $newPassword) {
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -134,9 +111,6 @@ class User {
     
     /**
      * DELETE
-     * 
-     * @param int $id
-     * @return bool
      */
     public function delete($id) {
         $sql = "DELETE FROM user WHERE id_user = :id";
@@ -146,11 +120,7 @@ class User {
     }
     
     /**
-     * CHECK USERNAME - Cek apakah username sudah ada
-     * 
-     * @param string $username
-     * @param int|null $excludeId (untuk update, exclude id sendiri)
-     * @return bool
+     * CHECK USERNAME
      */
     public function isUsernameExists($username, $excludeId = null) {
         if ($excludeId) {

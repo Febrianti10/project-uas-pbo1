@@ -7,7 +7,8 @@ class Kandang
 
     public function __construct()
     {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
 
     /**
@@ -82,19 +83,18 @@ class Kandang
         return $stmt->fetch();
     }
 
+    public function updateStatus($id, $status) {
+        $allowed = ["tersedia", "terpakai", "maintenance"];
 
-public function updateStatus($id, $status) {
-    $allowed = ["tersedia", "terpakai", "maintenance"];
+        if (!in_array($status, $allowed)) {
+            $status = "tersedia";
+        }
 
-    if (!in_array($status, $allowed)) {
-        $status = "tersedia";
+        $sql = "UPDATE kandang SET status = :status WHERE id_kandang = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            "id" => $id,
+            "status" => $status
+        ]);
     }
-
-    $sql = "UPDATE kandang SET status = :status WHERE id_kandang = :id";
-    $stmt = $this->db->prepare($sql);
-    return $stmt->execute([
-        "id" => $id,
-        "status" => $status
-    ]);
-}
 }

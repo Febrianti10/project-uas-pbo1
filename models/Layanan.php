@@ -7,7 +7,8 @@ class Layanan
 
     public function __construct()
     {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
 
     /**

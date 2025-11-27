@@ -7,7 +7,8 @@ class Hewan
 
     public function __construct()
     {
-        $this->db = getDB();
+        // PERBAIKAN: Gunakan getInstance()
+        $this->db = Database::getInstance();
     }
 
     /**
@@ -15,6 +16,7 @@ class Hewan
      */
     public function getAll()
     {
+        // Catatan: Di database nama kolomnya 'catatan_kesehatan', kita alias jadi 'catatan' biar view tidak error
         $sql = "SELECT 
                     h.id_hewan as id,
                     h.nama_hewan as nama,
@@ -22,7 +24,7 @@ class Hewan
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.catatan,
+                    h.catatan_kesehatan as catatan, 
                     h.ukuran,
                     h.warna,
                     h.status
@@ -51,49 +53,41 @@ class Hewan
         return $stmt->fetch();
     }
 
-    // Untuk sementara, comment method lainnya yang tidak urgent
-    // Kita fokus dulu ke method getAll() dan getSummary()
-
     /**
-     * Tambah hewan baru
+     * Tambah hewan baru - RETURN LAST INSERT ID
      */
-    /**
- * Tambah hewan baru - RETURN LAST INSERT ID
- */
-public function create($data) {
-    try {
-        $sql = "INSERT INTO hewan 
-                (id_pelanggan, nama_hewan, jenis, ras, ukuran, warna, catatan, status)
-                VALUES 
-                (:id_pelanggan, :nama_hewan, :jenis, :ras, :ukuran, :warna, :catatan, :status)";
+    public function create($data) {
+        try {
+            // PERBAIKAN: Nama kolom disesuaikan dengan database (catatan_kesehatan)
+            $sql = "INSERT INTO hewan 
+                    (id_pelanggan, nama_hewan, jenis, ras, ukuran, warna, catatan_kesehatan, status)
+                    VALUES 
+                    (:id_pelanggan, :nama_hewan, :jenis, :ras, :ukuran, :warna, :catatan, :status)";
 
-        $stmt = $this->db->prepare($sql);
+            $stmt = $this->db->prepare($sql);
 
-        $result = $stmt->execute([
-            "id_pelanggan" => $data["id_pelanggan"],
-            "nama_hewan" => $data["nama_hewan"],
-            "jenis" => $data["jenis"],
-            "ras" => $data["ras"],
-            "ukuran" => $data["ukuran"],
-            "warna" => $data["warna"],
-            "catatan" => $data["catatan"] ?? null,
-            "status" => $data["status"] ?? "tersedia",
-        ]);
+            $result = $stmt->execute([
+                "id_pelanggan" => $data["id_pelanggan"],
+                "nama_hewan" => $data["nama_hewan"],
+                "jenis" => $data["jenis"],
+                "ras" => $data["ras"],
+                "ukuran" => $data["ukuran"] ?? 'Kecil',
+                "warna" => $data["warna"],
+                "catatan" => $data["catatan"] ?? null,
+                "status" => $data["status"] ?? "tersedia",
+            ]);
 
-        if ($result) {
-            return $this->db->lastInsertId(); // Return the inserted ID
-        } else {
+            if ($result) {
+                return $this->db->lastInsertId(); // Return ID hewan yang baru dibuat
+            } else {
+                return false;
+            }
+
+        } catch (Exception $e) {
+            error_log("Error create hewan: " . $e->getMessage());
             return false;
         }
-
-    } catch (Exception $e) {
-        error_log("Error create hewan: " . $e->getMessage());
-        return false;
     }
-}
-
-    // Method lainnya bisa ditambahkan nanti setelah basic functionality work
-
 
     /**
      * Update data hewan
@@ -108,7 +102,7 @@ public function create($data) {
                         ras = :ras,
                         ukuran = :ukuran,
                         warna = :warna,
-                        catatan = :catatan,  -- UBAH: keterangan -> catatan
+                        catatan_kesehatan = :catatan,
                         status = :status
                     WHERE id_hewan = :id";
 
@@ -122,7 +116,7 @@ public function create($data) {
                 "ras" => $data["ras"],
                 "ukuran" => $data["ukuran"],
                 "warna" => $data["warna"],
-                "catatan" => $data["catatan"] ?? null,  // UBAH: keterangan -> catatan
+                "catatan" => $data["catatan"] ?? null,
                 "status" => $data["status"] ?? "tersedia",
             ]);
 
@@ -144,7 +138,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.catatan  -- UBAH: h.keterangan -> h.catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 WHERE h.nama_hewan LIKE :key
@@ -170,7 +164,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.keterangan as catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 WHERE h.jenis = :jenis
@@ -193,7 +187,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.keterangan as catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 WHERE h.id_pelanggan = :id_pelanggan
@@ -216,7 +210,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.keterangan as catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 WHERE h.status = 'tersedia'
@@ -239,7 +233,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.keterangan as catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 WHERE h.status = 'sedang_dititipkan'
@@ -319,7 +313,7 @@ public function create($data) {
                     h.ras,
                     p.nama_pelanggan as pemilik,
                     p.no_hp as no_telp,
-                    h.keterangan as catatan
+                    h.catatan_kesehatan as catatan
                 FROM hewan h
                 LEFT JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
                 ORDER BY h.created_at DESC
@@ -343,26 +337,29 @@ public function create($data) {
         $result = $stmt->fetch();
         return $result['total'] ?? 0;
     }
-    /**
- * Update status hewan
- */
-public function updateStatus($id, $status) {
-    $allowed = ["tersedia", "sedang_dititipkan", "sudah_diambil"];
 
-    if (!in_array($status, $allowed)) {
-        $status = "tersedia";
+    /**
+     * Update status hewan
+     */
+    public function updateStatus($id, $status) {
+        $allowed = ["tersedia", "sedang_dititipkan", "sudah_diambil"];
+
+        if (!in_array($status, $allowed)) {
+            $status = "tersedia";
+        }
+
+        $sql = "UPDATE hewan SET status = :status WHERE id_hewan = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            "id" => $id,
+            "status" => $status
+        ]);
     }
 
-    $sql = "UPDATE hewan SET status = :status WHERE id_hewan = :id";
-    $stmt = $this->db->prepare($sql);
-    return $stmt->execute([
-        "id" => $id,
-        "status" => $status
-    ]);
-}
-
-// Tambahkan method ini di class Hewan  
-public function getLastInsertId() {
-    return $this->db->lastInsertId();
-}
+    /**
+     * Helper: Ambil ID terakhir yang diinput
+     */
+    public function getLastInsertId() {
+        return $this->db->lastInsertId();
+    }
 }
