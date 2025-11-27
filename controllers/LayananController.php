@@ -1,86 +1,67 @@
 <?php
 require_once __DIR__ . '/../models/Layanan.php';
-require_once __DIR__ . '/../helper/helper.php';
-require_once __DIR__ . '/../config/database.php';
 
 class LayananController
 {
-    private $layanan;
+    private $layananModel;
 
     public function __construct()
     {
-        $db = getDB();
-        $this->layanan = new Layanan($db);
+        // PERBAIKAN: Jangan passing $db di sini. Model urus koneksinya sendiri.
+        $this->layananModel = new Layanan();
     }
 
     public function index()
     {
-        $data['layanan'] = $this->layanan->getAllLayanan();
-        Helper::view('layanan/index', $data);
-    }
-
-    public function create()
-    {
-        Helper::view('layanan/create');
+        $daftarLayanan = $this->layananModel->getAll();
+        // Pastikan variabel $daftarLayanan dikirim ke view
+        require_once __DIR__ . '/../views/layanan.php';
     }
 
     public function store()
     {
-        if (!isset($_POST['submit'])) {
-            Helper::redirect('?page=layanan');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'nama_layanan' => $_POST['nama_layanan'],
+                'harga' => $_POST['harga'],
+                'deskripsi' => $_POST['deskripsi']
+            ];
+
+            if ($this->layananModel->create($data)) {
+                header('Location: index.php?page=layanan&status=success');
+            } else {
+                header('Location: index.php?page=layanan&status=error');
+            }
+            exit;
         }
-
-        $nama  = clean($_POST['nama']);
-        $harga = clean($_POST['harga']);
-        $jenis = clean($_POST['jenis']);
-
-        $this->layanan->tambahLayanan($nama, $harga, $jenis);
-
-        Helper::redirect('?page=layanan&msg=added');
-    }
-
-    public function edit()
-    {
-        if (!isset($_GET['id'])) {
-            Helper::redirect('?page=layanan');
-        }
-
-        $id = intval($_GET['id']);
-
-        $data['layanan'] = $this->layanan->getLayananById($id);
-
-        if (!$data['layanan']) {
-            Helper::redirect('?page=layanan&msg=notfound');
-        }
-
-        Helper::view('layanan/edit', $data);
     }
 
     public function update()
     {
-        if (!isset($_POST['submit'])) {
-            Helper::redirect('?page=layanan');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id_layanan'];
+            $data = [
+                'nama_layanan' => $_POST['nama_layanan'],
+                'harga' => $_POST['harga'],
+                'deskripsi' => $_POST['deskripsi']
+            ];
+
+            if ($this->layananModel->update($id, $data)) {
+                header('Location: index.php?page=layanan&status=updated');
+            } else {
+                header('Location: index.php?page=layanan&status=error');
+            }
+            exit;
         }
-
-        $id    = intval($_POST['id']);
-        $nama  = clean($_POST['nama']);
-        $harga = clean($_POST['harga']);
-        $jenis = clean($_POST['jenis']);
-
-        $this->layanan->updateLayanan($id, $nama, $harga, $jenis);
-
-        Helper::redirect('?page=layanan&msg=updated');
     }
 
     public function delete()
     {
-        if (!isset($_GET['id'])) {
-            Helper::redirect('?page=layanan');
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $this->layananModel->delete($id);
         }
-
-        $id = intval($_GET['id']);
-        $this->layanan->deleteLayanan($id);
-
-        Helper::redirect('?page=layanan&msg=deleted');
+        header('Location: index.php?page=layanan&status=deleted');
+        exit;
     }
 }

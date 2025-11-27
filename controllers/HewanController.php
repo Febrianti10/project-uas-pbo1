@@ -1,40 +1,51 @@
- 
 <?php
+require_once __DIR__ . '/../models/Hewan.php';
+require_once __DIR__ . '/../models/Pelanggan.php';
 
-// ... bagian atas dari index.php Anda (sebelum logic routing) ...
-require_once __DIR__ . '/models/kandang.php';
-// ...
+class HewanController
+{
+    private $hewanModel;
+    private $pelangganModel;
 
-// ... Di dalam logic routing Anda:
-$page = $_GET['page'] ?? 'home';
-$action = $_GET['action'] ?? null;
+    public function __construct()
+    {
+        $this->hewanModel = new Hewan();
+        $this->pelangganModel = new Pelanggan();
+    }
 
-if ($page === 'kandang') {
-    $kandangModel = new Kandang();
+    public function index()
+    {
+        // Ambil data untuk ditampilkan di tabel
+        $dataHewan = $this->hewanModel->getAll();
+        
+        // Load view
+        require_once __DIR__ . '/../views/hewan.php';
+    }
 
-    if ($action === 'store' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Ambil data dari form
-        $dataKandang = [
-            'kode'    => $_POST['kode'] ?? '',
-            'tipe'    => $_POST['tipe'] ?? '',
-            'catatan' => $_POST['catatan'] ?? ''
-        ];
+    public function create()
+    {
+        // Logika untuk menampilkan form tambah (jika dipisah)
+        // atau menghandle proses simpan
+    }
 
-        if ($kandangModel->create($dataKandang)) {
-            // Jika berhasil disimpan, redirect kembali ke halaman hewan
-            header('Location: index.php?page=hewan&status=success_add_kandang');
-            exit;
-        } else {
-            // Jika gagal
-            header('Location: index.php?page=hewan&status=error_add_kandang');
-            exit;
-        }
-    } 
-    // ... Tambahkan logic untuk 'delete' kandang di sini
+    public function store()
+    {
+        // Proses simpan data hewan (jika ada form khusus hewan)
+    }
     
-    // Jika tidak ada action yang cocok, tampilkan halaman hewan (ini mungkin perlu disesuaikan)
-    // Jika Anda ingin langsung kembali ke view hewan, mungkin tidak perlu di sini.
-    // Error "Action not found" biasanya terjadi di mekanisme routing utama Anda.
-}
+    // Method updateStatus dipanggil via AJAX/Redirect
+    public function updateStatus() 
+    {
+        $id = $_POST['id'] ?? null;
+        $status = $_POST['status'] ?? null;
 
-// ... logic routing lainnya (untuk 'hewan', 'pelanggan', 'transaksi')
+        if ($id && $status) {
+            if ($this->hewanModel->updateStatus($id, $status)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Gagal update status']);
+            }
+        }
+        exit;
+    }
+}

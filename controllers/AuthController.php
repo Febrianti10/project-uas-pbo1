@@ -1,5 +1,7 @@
 <?php
 // controllers/AuthController.php
+require_once __DIR__ . '/../models/User.php';
+
 class AuthController {
     private $userModel;
 
@@ -8,36 +10,55 @@ class AuthController {
     }
 
     public function login() {
-        // Validasi server-side
-        $username = trim($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
+        // Jika request via API/AJAX
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = trim($_POST['username'] ?? '');
+            $password = $_POST['password'] ?? '';
 
-        if (empty($username) || empty($password)) {
-            echo json_encode(['error' => 'Username dan password harus diisi']);
-            return;
-        }
+            if (empty($username) || empty($password)) {
+                $this->jsonResponse(['error' => 'Username dan password harus diisi']);
+                return;
+            }
 
-        if (strlen($username) < 3 || strlen($password) < 6) {
-            echo json_encode(['error' => 'Username minimal 3 karakter, password minimal 6 karakter']);
-            return;
-        }
-
-        $user = $this->userModel->login($username, $password);
-        if ($user) {
-            // Set session
-            $_SESSION['user_id'] = $user['id_user'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-            $_SESSION['role'] = $user['role'];
-            echo json_encode(['success' => 'Login berhasil', 'user' => $user]);
+            $user = $this->userModel->login($username, $password);
+            
+            if ($user) {
+                // Set session
+                if (session_status() === PHP_SESSION_NONE) session_start();
+                $_SESSION['user'] = $user; // Simpan array user lengkap
+                
+                // Redirect jika bukan AJAX, atau return JSON jika AJAX
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    $this->jsonResponse(['success' => 'Login berhasil', 'redirect' => 'index.php?page=dashboard']);
+                } else {
+                    header('Location: index.php?page=dashboard');
+                    exit;
+                }
+            } else {
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    $this->jsonResponse(['error' => 'Username atau password salah']);
+                } else {
+                    // Redirect balik ke login dengan error
+                    header('Location: index.php?page=login&error=invalid_credentials');
+                    exit;
+                }
+            }
         } else {
-            echo json_encode(['error' => 'Username atau password salah']);
+            // Tampilkan view login
+            require_once __DIR__ . '/../views/login.php';
         }
     }
 
     public function logout() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
         session_destroy();
-        echo json_encode(['success' => 'Logout berhasil']);
+        header('Location: index.php?page=login');
+        exit;
+    }
+
+    private function jsonResponse($data) {
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
     }
 }
-?>
